@@ -927,28 +927,74 @@
   function setTheme(t) { document.documentElement.setAttribute('data-theme', t || 'home'); }
   function kidById(id) { return A.kids.filter(function (k) { return k.id === id; })[0]; }
 
+  /* ───────── общий вход: кто играет → куда пойдём ───────── */
+  var LEVELS = [[0, 'Новичок'], [3, 'Помощник'], [8, 'Знаток'], [15, 'Мастер'], [25, 'Главный по дому'], [40, 'Волшебник']];
+  function homeStars(id) {
+    try { var d = JSON.parse(localStorage.getItem('vesyoly-dom-v1') || '{}'); return Object.keys((d.stars || {})[id] || {}).length; } catch (e) { return 0; }
+  }
+  function totalStars(k) { return Store.count(k) + homeStars(k.id); }
+  function level(n) {
+    var cur = LEVELS[0], next = null;
+    LEVELS.forEach(function (l, i) { if (n >= l[0]) { cur = l; next = LEVELS[i + 1] || null; } });
+    return { name: cur[1], from: cur[0], next: next };
+  }
+  function setPlayer(id) { try { localStorage.setItem('family-player', id); } catch (e) {} }
+
   function renderHome() {
     setTheme('home');
-    document.title = 'ИИ-Академия';
+    document.title = 'Весёлый Дом';
     clear(app);
     add(app, [
       h('header', { class: 'home-head' },
-        h('div', { class: 'home-logo pop' }, '🤖✨'),
-        h('h1', null, 'ИИ-Академия'),
-        h('p', { class: 'muted' }, 'Учимся понимать умные машины')),
+        h('div', { class: 'home-logo pop' }, '🏠✨'),
+        h('h1', null, 'Весёлый Дом'),
+        h('p', { class: 'muted' }, 'Кто сегодня играет?')),
       h('div', { class: 'kids' }, A.kids.map(function (k) {
-        var n = Store.count(k), total = k.missions.length;
-        return h('a', { class: 'kid-card t-' + k.theme, href: '#/kid/' + k.id },
+        var n = totalStars(k), lv = level(n);
+        var pc = lv.next ? Math.round((n - lv.from) / (lv.next[0] - lv.from) * 100) : 100;
+        return h('a', { class: 'kid-card t-' + k.theme, href: '#/hi/' + k.id },
           h('span', { class: 'kid-emoji' }, k.emoji),
           h('span', { class: 'kid-info' },
-            h('span', { class: 'kid-name' }, k.name, h('span', { class: 'kid-age' }, ' · ' + k.ageText)),
-            h('span', { class: 'kid-island' }, k.island),
-            h('span', { class: 'meter' }, h('span', { class: 'meter-fill', style: 'width:' + (n / total * 100) + '%' })),
-            h('span', { class: 'kid-stars' }, '⭐ ' + n + ' из ' + total)),
+            h('span', { class: 'kid-name' }, k.short || k.name),
+            h('span', { class: 'kid-island' }, 'Звание: ' + lv.name),
+            h('span', { class: 'meter' }, h('span', { class: 'meter-fill', style: 'width:' + pc + '%' })),
+            h('span', { class: 'kid-stars' }, '⭐ ' + n + (lv.next ? ' · до «' + lv.next[1] + '» ещё ' + (lv.next[0] - n) : ' · самое высокое звание'))),
           h('span', { class: 'kid-go', 'aria-hidden': 'true' }, '→'));
       })),
       h('a', { class: 'parents-link', href: '#/parents' }, '🏡 Для родителей: как заниматься и семейный договор'),
-      h('p', { class: 'foot muted small center' }, 'Все «ответы ИИ» на сайте написаны заранее — здесь нет настоящего чат-бота.')
+      h('p', { class: 'foot muted small center' }, 'Звёзды из всех миров складываются вместе. Всё хранится только на этом телефоне.')
+    ]);
+  }
+
+  function renderHi(kid) {
+    setTheme('home');
+    setPlayer(kid.id);
+    document.title = 'Куда пойдём? — Весёлый Дом';
+    clear(app);
+    var n = totalStars(kid), ai = Store.count(kid), dom = homeStars(kid.id);
+    function world(href, cls, emoji, title, text, meta) {
+      return h('a', { class: 'world-card ' + cls, href: href },
+        h('span', { class: 'world-emoji' }, emoji),
+        h('span', { class: 'kid-info' },
+          h('span', { class: 'kid-name' }, title),
+          h('span', { class: 'kid-island' }, text),
+          meta ? h('span', { class: 'kid-stars' }, meta) : null),
+        h('span', { class: 'kid-go', 'aria-hidden': 'true' }, '→'));
+    }
+    add(app, [
+      topbar('#/', 'Привет, ' + (kid.short || kid.name) + '!'),
+      h('section', { class: 'island-hero' },
+        h('div', { class: 'island-emoji pop' }, kid.emoji),
+        h('div', { class: 'big-text' }, h('p', null, 'Куда пойдём сегодня?')),
+        kid.voice ? h('button', { class: 'speak', type: 'button', 'aria-label': 'Прочитать вслух', onclick: function () { Voice.say('Привет, ' + kid.name + '! Куда пойдём сегодня? В квартиру восемьдесят два или на остров роботов?'); } }, '🔊') : null,
+        h('div', { class: 'kid-stars' }, '⭐ ' + n + ' · ' + level(n).name)),
+      h('div', { class: 'kids' }, [
+        world('dom/', 'w-dom', '🏠', 'Квартира 82', 'Учимся говорить с Алисой: свет, комнаты, задания и весёлые имена.', '⭐ ' + dom),
+        world('#/kid/' + kid.id, 't-' + kid.theme, kid.emoji, 'ИИ-Академия · ' + kid.island, 'Как устроен искусственный интеллект и как с ним дружить.', '⭐ ' + ai + ' из ' + kid.missions.length),
+        h('div', { class: 'world-card w-soon' },
+          h('span', { class: 'world-emoji' }, '✨'),
+          h('span', { class: 'kid-info' }, h('span', { class: 'kid-name' }, 'Новый мир'), h('span', { class: 'kid-island' }, 'Скоро здесь появится ещё одна игра.')))
+      ])
     ]);
   }
 
@@ -958,7 +1004,7 @@
     clear(app);
     var n = Store.count(kid), total = kid.missions.length;
     add(app, [
-      topbar('#/', kid.island, kid.voice ? soundToggle() : null),
+      topbar('#/hi/' + kid.id, kid.island, kid.voice ? soundToggle() : null),
       h('section', { class: 'island-hero' },
         h('div', { class: 'island-emoji pop' }, kid.emoji),
         h('div', { class: 'big-text' }, h('p', null, kid.hello)),
@@ -1016,7 +1062,8 @@
     Array.prototype.slice.call(document.querySelectorAll('.confetti')).forEach(function (c) { c.parentNode.removeChild(c); });
     var parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
     var kid;
-    if (parts[0] === 'kid' && (kid = kidById(parts[1]))) renderKid(kid);
+    if (parts[0] === 'hi' && (kid = kidById(parts[1]))) renderHi(kid);
+    else if (parts[0] === 'kid' && (kid = kidById(parts[1]))) { setPlayer(kid.id); renderKid(kid); }
     else if (parts[0] === 'm' && (kid = kidById(parts[1]))) {
       var m = kid.missions.filter(function (x) { return x.id === parts[2]; })[0];
       if (m) renderMission(kid, m); else renderKid(kid);

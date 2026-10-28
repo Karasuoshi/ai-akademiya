@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Квартира 82 — Весёлый Дом</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0E1430">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pangolin&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: entry screen (who plays + doors to worlds, shared stars) → world «Квартира 82»:
+   night floor plan / room cut-away on the left, game panel on the right, Alice's line under the scene. Phone: stacked. */
+:root{
+  --night:#0E1430; --panel:#18203F; --panel2:#222C55; --line:#33407A;
+  --ink:#EEF1FF; --muted:#A6AED3;
+  --lamp:#FFC94D; --lamp-ink:#3A2600; --alice:#8EE3CE; --alice-ink:#08302A;
+  --good:#A9E592; --good-ink:#163A0C; --bad:#FF9F8C; --bad-ink:#4A1206;
+  --wall:#E8D6B4; --wall2:#D6BF97; --wood:#A8733F; --wood2:#7E522A; --floor:#8A5C36;
+  --sky:#1D2C61; --bedding:#F4F0E6; --blue:#5DA6DE; --pink:#E58FB5; --green:#6FBF8A; --glass:#BFD3E6;
+  --f-display:"Pangolin","Comic Sans MS","Chalkboard SE",cursive;
+  --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}[hidden]{display:none!important}img{max-width:100%}html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--night);color:var(--ink);font:15px/1.45 var(--f-body)}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding-block:18px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+.wrap>*{min-width:0}
+:focus-visible{outline:3px solid var(--alice);outline-offset:2px}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+.brand{display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.brand h1{margin:0;font:400 clamp(24px,4vw,34px)/1 var(--f-display)}
+.brand small{display:block;margin-top:3px;color:var(--muted);font-size:13px}
+.me{display:flex;align-items:center;gap:10px;background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:4px 14px 4px 4px}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:400 17px var(--f-display);color:var(--night);flex:none}
+.stars{display:inline-flex;align-items:center;gap:4px;color:var(--lamp);font-weight:800;font-variant-numeric:tabular-nums}
+
+/* hub */
+.hub{display:grid;gap:22px}
+.hero{display:grid;gap:4px}
+.hero h2{margin:0;font:400 clamp(26px,4.4vw,40px)/1.1 var(--f-display);text-wrap:balance}
+.hero p{margin:0;color:var(--muted)}
+.sect{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:0}
+.who{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.pcard{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px;cursor:pointer}
+.pcard .av{width:52px;height:52px;font-size:26px;grid-row:span 2}
+.pcard b{font:400 24px/1 var(--f-display)}
+.pcard .lvl{color:var(--muted);font-size:13.5px}
+.pcard .bar{grid-column:1/-1;height:8px;border-radius:4px;background:var(--night);overflow:hidden;margin-top:6px}
+.pcard .bar i{display:block;height:100%;background:var(--lamp);border-radius:4px}
+.pcard .meta{grid-column:1/-1;display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.pcard[aria-pressed="true"]{border-color:var(--lamp);background:var(--panel2)}
+.worlds{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.door{display:grid;gap:8px;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:0 0 14px;cursor:pointer;overflow:hidden}
+.door svg{display:block;width:100%;height:auto;background:#121A3C}
+.door h3{margin:0 14px;font:400 24px/1.1 var(--f-display)}
+.door p{margin:0 14px;color:var(--muted);font-size:14px}
+.door .wst{margin:0 14px;display:flex;gap:12px;align-items:center;font-size:13.5px;color:var(--muted)}
+.door:hover{border-color:var(--alice)}
+.door.soon{cursor:default;border-style:dashed;background:transparent}
+.door.soon:hover{border-color:var(--line)}
+
+/* world layout */
+.wbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.wbar h2{margin:0;font:400 24px var(--f-display)}
+.btn{background:var(--alice);color:var(--alice-ink);border:0;border-radius:12px;padding:10px 16px;font-weight:800;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:var(--panel2);color:var(--ink)}
+.btn.lamp{background:var(--lamp);color:var(--lamp-ink)}
+.btn.small{padding:7px 12px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:default}
+.stage{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.stage{grid-template-columns:minmax(0,1fr)}}
+.scene{background:var(--panel);border-radius:18px;overflow:hidden;border:2px solid var(--line)}
+.scene svg{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation}
+.shead{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;padding:10px 14px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.shead h3{margin:0;font:400 21px var(--f-display)}
+.shead .muted{font-size:13px}
+
+/* svg pieces */
+.fx{cursor:pointer}
+.fx .lampbody{fill:#5E6688;stroke:#2A3150;stroke-width:1.5;transition:fill .25s}
+.fx .bulb{fill:#7C84A6;transition:fill .25s}
+.fx.on .lampbody{fill:var(--lamp)}
+.fx.on .bulb{fill:#FFF6D6}
+.fx .strip{stroke:#59607E;stroke-width:4;stroke-linecap:round;transition:stroke .25s;fill:none}
+.fx.on .strip{stroke:#FFE08A}
+.fx .hit{fill:transparent}
+.fx .blades{fill:#7C84A6;transform-box:fill-box;transform-origin:center}
+.fx.on .blades{fill:var(--alice);animation:spin 1s linear infinite}
+.fx .wave{stroke:#59607E;stroke-width:3;fill:none;stroke-linecap:round;transition:stroke .3s}
+.fx.on .wave{stroke:#FF8A4C}
+.fx .screen{fill:#1A2140;transition:fill .3s}
+.fx.on .screen{fill:#6EC3FF}
+.fx .pict{opacity:0;transition:opacity .3s}
+.fx.on .pict{opacity:1}
+.fx .curl,.fx .curr{fill:#9B8FE5;transform-box:fill-box;transition:transform .5s}
+.fx .curl{transform-origin:left center}.fx .curr{transform-origin:right center}
+.fx.on .curl,.fx.on .curr{transform:scaleX(.22)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.glow{opacity:0;transition:opacity .45s;mix-blend-mode:screen;pointer-events:none}
+.glow.on{opacity:1}
+.tag{cursor:pointer}
+.tag rect{fill:#121939;stroke:#47548F;stroke-width:1.5;transition:fill .2s,stroke .2s}
+.tag text{fill:var(--ink);font:800 13px var(--f-body)}
+.tag.on rect{fill:var(--lamp);stroke:var(--lamp)}
+.tag.on text{fill:var(--lamp-ink)}
+.tag.sel rect{stroke:var(--alice);stroke-width:3}
+.dark{transition:opacity .45s;pointer-events:none}
+.ring{fill:none;stroke:var(--alice);stroke-width:3;opacity:.35}
+.talk .ring{animation:ring 1.2s ease-in-out 2}
+@keyframes ring{50%{opacity:1;stroke-width:5}}
+.mroom{cursor:pointer}
+.mroom:hover .wallr{stroke:var(--alice)}
+.mroom .wallr{fill:none;stroke:#0A0F24;stroke-width:6;transition:stroke .2s}
+.mroom text{pointer-events:none}
+.mdot{fill:#5E6688;transition:fill .3s}
+.mdot.on{fill:#FFF0B8}
+@media (prefers-reduced-motion:reduce){.glow,.dark,.fx *{transition:none}.talk .ring{animation:none;opacity:1}.fx.on .blades{animation:none}}
+
+/* alice line */
+.alice{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:12px 14px;border-top:2px solid var(--line)}
+.ctx{font-size:13px;color:var(--muted)}
+.ctx b{color:var(--ink)}
+.bubbles{display:grid;gap:6px;min-height:58px}
+.bub{max-width:100%;padding:7px 12px;border-radius:14px;overflow-wrap:anywhere}
+.bub.you{justify-self:end;background:var(--panel2);border-bottom-right-radius:4px}
+.bub.al{justify-self:start;background:var(--alice);color:var(--alice-ink);border-bottom-left-radius:4px;font-weight:700}
+.bub.hint{justify-self:start;color:var(--muted);background:none;padding:4px 2px}
+.alice>*{min-width:0}
+.say{display:flex;gap:8px;min-width:0}
+.mapwrap{overflow-x:auto}
+.mapwrap svg{min-width:560px}
+.say input,.nm-in input{flex:1;min-width:0;background:var(--night);border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+.say input:focus,.nm-in input:focus{outline:none;border-color:var(--alice)}
+
+/* panel */
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:18px;display:grid;min-width:0}
+.tabs{display:flex;border-bottom:2px solid var(--line)}
+.tab{flex:1;background:none;border:0;padding:12px 6px;cursor:pointer;color:var(--muted);font-weight:800;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--lamp)}
+.pbody{padding:16px;display:grid;gap:14px;min-width:0}
+.pbody>*{min-width:0}
+.lead{margin:0;color:var(--muted)}
+.big{font:400 24px/1.25 var(--f-display);margin:0;text-wrap:balance}
+.phrase{font:400 20px/1.3 var(--f-display);color:var(--lamp)}
+.card{background:var(--panel2);border-radius:14px;padding:14px;display:grid;gap:8px}
+.lbl{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--night);border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13.5px}
+.chip.mine{border-color:var(--lamp);color:var(--lamp)}
+.chip.pick{cursor:pointer}
+.chip.pick[aria-pressed="true"]{background:var(--lamp);border-color:var(--lamp);color:var(--lamp-ink);font-weight:800}
+.muted{color:var(--muted);font-size:13.5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.magic{display:grid;gap:10px}
+.magic>div{display:grid;grid-template-columns:1fr auto;gap:0 8px;align-items:center}
+.magic .muted{grid-column:1}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;justify-self:start}
+.seg button{background:none;border:0;padding:7px 14px;cursor:pointer;font-weight:800;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--line);color:var(--ink)}
+
+/* quests */
+.prog{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.dot.done{background:var(--lamp)}
+.dot.cur{box-shadow:0 0 0 3px var(--alice)}
+.opts{display:grid;gap:8px}
+.optrow{display:flex;gap:8px;align-items:center}
+.opt{flex:1;min-width:0;display:flex;align-items:center;gap:12px;text-align:left;background:var(--night);border:2px solid var(--line);border-radius:14px;padding:10px 12px;cursor:pointer}
+.opt:hover{border-color:var(--alice)}
+.opt .pic{flex:none;width:52px;height:52px;border-radius:12px;background:var(--panel2);display:grid;place-items:center}
+.opt .txt{font:400 18px/1.25 var(--f-display);flex:1;min-width:0}
+.opt.right{border-color:var(--good);background:#1C3324}
+.opt.wrong{border-color:var(--bad);background:#3A1F22}
+.spk{flex:none;width:38px;height:38px;border-radius:50%;border:0;background:var(--panel2);display:grid;place-items:center;cursor:pointer}
+.fb{border-radius:14px;padding:12px 14px;display:grid;gap:4px}
+.fb.ok{background:var(--good);color:var(--good-ink)}
+.fb.no{background:var(--bad);color:var(--bad-ink)}
+.fb b{font:400 20px var(--f-display)}
+.mode{font-size:12.5px;color:var(--muted);background:var(--night);border-radius:999px;padding:3px 10px}
+
+/* names */
+.nm-in{display:flex;gap:8px}
+.check{font-size:14px;padding:8px 12px;border-radius:10px}
+.check.ok{background:var(--good);color:var(--good-ink)}
+.check.warn{background:var(--lamp);color:var(--lamp-ink)}
+.check.bad{background:var(--bad);color:var(--bad-ink)}
+.list{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px}
+.list li{display:flex;gap:4px 8px;flex-wrap:wrap;align-items:baseline}
+.list li span{color:var(--muted)}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:13px;padding:2px}
+
+/* ai world */
+.aiw{max-width:720px;display:grid;gap:14px}
+
+.foot{color:var(--muted);font-size:13px;max-width:80ch;margin:0}
+.foot b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <button class="brand" type="button" id="homeBtn" aria-label="Все миры">
+      <svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 22 24 7l18 15v20H6z" fill="#E8D6B4"/><path d="M3 23 24 5l21 18" fill="none" stroke="#A8733F" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="25" width="10" height="9" rx="1.5" fill="#FFC94D"/><rect x="26" y="25" width="10" height="9" rx="1.5" fill="#33407A"/><rect x="21" y="35" width="7" height="7" fill="#7E522A"/></svg>
+      <span><h1>Весёлый Дом</h1><small>← Все миры</small></span>
+    </button>
+    <div class="me" id="me"></div>
+  </header>
+  <main id="app"></main>
+  <p class="foot"><b>Для взрослых.</b> Прототип: к дому не подключён, лампы горят только на картинке. Устройства и сценарии взяты из «Названий кв. 82» и «Плана Алисы». Имена, которые придумают дети, папа вносит в Яндекс сам. Звёзды хранятся в браузере этого телефона и складываются со звёздами ИИ-Академии.</p>
+</div>
+
+<script id="core">
+/* ================= data ================= */
+const PLAYERS={
+  miron:{name:'Мирон',home:'miron',mode:'pics',modeName:'картинки и звук',color:'#6FBF8A',group:'miron'},
+  yasya:{name:'Яся',home:'girls',mode:'choice',modeName:'выбираю ответ',color:'#E58FB5',group:'girls'},
+  esya:{name:'Еся',home:'girls',mode:'type',modeName:'пишу сама',color:'#5DA6DE',group:'girls'}
+};
+const LEVELS=[[0,'Новичок'],[3,'Помощник Алисы'],[8,'Знаток дома'],[15,'Мастер света'],[25,'Главный по дому'],[40,'Волшебник']];
+
+/* device: id, name (in Yandex), kid (how kids say it), names (all names), k kind, w light weight, fx drawing, tag, glow */
+const L='light',FAN='fan',HEAT='heat',TV='tv',CUR='curtain';
+const ROOMS=[
+ {id:'girls',name:'Девочки',title:'Комната девочек',words:['девочки','девочек'],mention:['девоч'],station:true,map:[10,10,270,190],st:[322,250],devices:[
+  {id:'main',name:'Трек у окна',kid:'Главный свет',names:['Трек у окна','Главный свет','Свет главный','Основной свет','Свет основной'],k:L,w:.34,what:'большой свет на потолке у окна',fx:{t:'track',x1:36,x2:250,h:[90,200]},tag:[143,64],glow:[150,150,210,170]},
+  {id:'door',name:'Свет у двери',kid:'Свет у двери',names:['Свет у двери','Свет проходной'],k:L,w:.16,what:'лампы у двери и шкафа',fx:{t:'spots',xs:[548,582]},tag:[530,64],glow:[560,210,95,140]},
+  {id:'desk',name:'Свет над столом',kid:'Стол',names:['Свет над столом','Стол'],k:L,w:.18,what:'лампа над столом',fx:{t:'pendant',x:285,y:205},tag:[285,228],glow:[285,250,115,85]},
+  {id:'shelf',name:'Подсветка полок',kid:'Полки',names:['Подсветка полок','Полки'],k:L,w:.12,what:'подсветка полок и мебели',fx:{t:'shelves',x:366,w:128,ys:[104,150]},tag:[430,80],glow:[430,130,90,70]},
+  {id:'esya',name:'Светильник Еся',kid:'Светильник Еся',names:['Светильник Еся','Светильник Есения','Светильник Сеша'],k:L,w:.12,what:'лампа у кровати Еси',fx:{t:'bra',x:72,y:232},tag:[100,200],glow:[72,262,95,80]},
+  {id:'yasya',name:'Светильник Яся',kid:'Светильник Яся',names:['Светильник Яся','Светильник Ярослава'],k:L,w:.12,what:'лампа у кровати Яси',fx:{t:'bra',x:470,y:232},tag:[440,200],glow:[470,262,95,80]}]},
+ {id:'miron',name:'Мирон',title:'Комната Мирона',words:['мирон'],mention:['мирон'],station:true,map:[280,10,190,190],st:[530,248],devices:[
+  {id:'top',name:'Потолок',kid:'Большой свет',names:['Потолок','Споты','Большой свет'],k:L,w:.32,what:'маленькие лампы на потолке',fx:{t:'spots',xs:[310,420,570]},tag:[420,64],glow:[440,150,210,170]},
+  {id:'track',name:'Трек',kid:'Трек',names:['Трек'],k:L,w:.3,what:'длинный светильник над кроватью',fx:{t:'track',x1:50,x2:230,h:[95,185]},tag:[140,64],glow:[140,120,180,140]},
+  {id:'desk',name:'Свет над столом',kid:'Стол',names:['Свет над столом','Стол'],k:L,w:.18,what:'лампа над столом',fx:{t:'pendant',x:505,y:215},tag:[505,238],glow:[505,255,120,90]},
+  {id:'shelf',name:'Подсветка полок',kid:'Полки',names:['Подсветка полок','Полки'],k:L,w:.12,what:'подсветка полок',fx:{t:'shelves',x:380,w:76,ys:[100,150]},tag:[418,182],glow:[418,128,80,70]},
+  {id:'up',name:'Бра верх',kid:'Чердак',names:['Бра верх','Чердак','Второй этаж','Верхний этаж'],k:L,w:.14,bra:1,what:'лампа наверху, у кровати-чердака',fx:{t:'bra',x:130,y:104},tag:[140,76],glow:[130,120,95,80]},
+  {id:'down',name:'Бра низ',kid:'Первый этаж',names:['Бра низ','Первый этаж','Нижний этаж'],k:L,w:.14,bra:1,what:'лампа внизу, под кроватью',fx:{t:'bra',x:130,y:212},tag:[112,250],glow:[128,262,100,75]}]},
+ {id:'living',name:'Гостиная',title:'Гостиная',words:['гостиная'],mention:['гостин'],station:true,map:[480,10,410,220],st:[515,258],devices:[
+  {id:'lyustra',name:'Люстра',kid:'Люстра над столом',names:['Люстра','Люстра над столом'],k:L,w:.3,what:'люстра над столом',fx:{t:'chand',x:300,y:130},tag:[300,176],glow:[300,190,130,120]},
+  {id:'divan',name:'Подсветка дивана',kid:'Диван',names:['Подсветка дивана','Диван'],k:L,w:.14,what:'подсветка за диваном',fx:{t:'strip',segs:[[368,272,468,272]]},tag:[418,248],glow:[418,280,90,60]},
+  {id:'stena',name:'Акцент Стена',kid:'Свет на стену',names:['Акцент Стена','Акцент Телевизор','Свет на стену','Подсветка Гостиная','Подсветка в гостиной'],k:L,w:.12,what:'спот, светит на стену',fx:{t:'spots',xs:[430]},tag:[420,64],glow:[430,140,90,110]},
+  {id:'shkaf',name:'Акцент Шкаф',kid:'Свет на шкаф',names:['Акцент Шкаф','Свет на шкаф','Подсветка Гостиная','Подсветка в гостиной'],k:L,w:.12,what:'спот, светит на шкаф у ТВ',fx:{t:'spots',xs:[545]},tag:[540,96],glow:[540,290,80,70]},
+  {id:'kamin',name:'Подсветка Камин',kid:'Палка в гостиной',names:['Подсветка Камин','Подсветка Камина','Палка в гостиной','Подсветка Гостиная','Подсветка в гостиной'],k:L,w:.12,what:'палка над камином',fx:{t:'bar',x1:150,x2:220,y:110},tag:[185,140],glow:[185,190,100,120]},
+  {id:'tv',name:'ТВ Гостиная',kid:'Телевизор',names:['ТВ Гостиная','Телевизор','Телевизор в гостиной'],k:TV,w:.06,what:'телевизор, в нём живёт Алиса',fx:{t:'tv',x:495,y:140,w:90,h:55},tag:[540,218],glow:[540,170,100,80]},
+  {id:'shtory',name:'Шторы Гостиная',kid:'Шторы',names:['Шторы Гостиная','Шторы','Шторы в гостиной'],k:CUR,w:0,what:'шторы на моторе',fx:{t:'curtain',x:14,y:54,w:112,h:202},tag:[70,282]}]},
+ {id:'corr',name:'Коридор',title:'Коридор',words:['коридор'],mention:['коридор'],station:false,map:[10,200,460,60],devices:[
+  {id:'main',name:'Свет Коридор',kid:'Свет в коридоре',names:['Свет Коридор','Свет в коридоре'],k:L,w:.35,what:'трек на потолке',fx:{t:'track',x1:20,x2:580,h:[150,300,450]},tag:[300,80],glow:[300,180,280,170]},
+  {id:'podsv',name:'Подсветка Коридор',kid:'Подсветка в коридоре',names:['Подсветка Коридор','Подсветка в коридоре'],k:L,w:.15,what:'лента вдоль потолка',fx:{t:'strip',segs:[[20,58,580,58]]},tag:[300,112],glow:[300,80,300,70]}]},
+ {id:'bed',name:'Спальня',title:'Спальня',words:['спальня'],mention:['спальн'],station:true,map:[10,260,230,160],st:[127,290],devices:[
+  {id:'main',name:'Свет Потолок',kid:'Большой свет',names:['Свет Потолок','Большой свет'],k:L,w:.32,what:'трек на потолке',fx:{t:'track',x1:150,x2:450,h:[220,380]},tag:[300,64],glow:[300,170,240,160]},
+  {id:'podsv',name:'Маленький свет',kid:'Маленький свет',names:['Маленький свет','Подсветка Спальня','Подсветка Стена','Подсветка'],k:L,w:.12,what:'подсветка у телевизора',fx:{t:'strip',segs:[[232,96,232,170],[368,96,368,170]]},tag:[300,192],glow:[300,135,110,70]},
+  {id:'okno',name:'Окно',kid:'Окно',names:['Окно'],k:L,w:.1,what:'подвес у кровати со стороны окна',fx:{t:'pendant',x:125,y:200},tag:[125,224],glow:[125,240,90,90]},
+  {id:'zerkalo',name:'Зеркало',kid:'Зеркало',names:['Зеркало'],k:L,w:.1,what:'подвес у кровати со стороны зеркала',fx:{t:'pendant',x:452,y:200},tag:[445,224],glow:[452,240,90,90]},
+  {id:'shkaf',name:'Свет Шкаф',kid:'Свет в шкафу',names:['Свет Шкаф','Свет в шкафу','Шкаф свет','Шкаф'],k:L,w:.1,what:'свет в гардеробе спальни',fx:{t:'spots',xs:[540]},tag:[530,96],glow:[537,200,70,140]},
+  {id:'shkafp',name:'Подсветка Шкаф',kid:'Подсветка в шкафу',names:['Подсветка Шкаф','Подсветка в шкафу','Шкаф подсветка','Шкаф'],k:L,w:.08,what:'подсветка полок в гардеробе',fx:{t:'strip',segs:[[490,84,490,330]]},tag:[515,306],glow:[520,220,60,120]},
+  {id:'tv',name:'ТВ Спальня',kid:'Телевизор',names:['ТВ Спальня','Телевизор','Телевизор в спальне'],k:TV,w:.06,what:'телевизор, в нём живёт Алиса',fx:{t:'tv',x:245,y:102,w:110,h:60},tag:[200,132],glow:[300,135,110,80]}]},
+ {id:'laundry',name:'Прачечная',title:'Прачечная',words:['прачечная'],mention:['прачечн'],station:false,map:[240,260,100,160],devices:[
+  {id:'main',name:'Люстра',kid:'Свет в прачечной',names:['Люстра','Свет Прачечная','Свет в прачечной'],k:L,w:.35,what:'свет на потолке',fx:{t:'spots',xs:[150,300,450]},tag:[300,64],glow:[300,170,280,170]},
+  {id:'polki',name:'Подсветка полок',kid:'Полки в прачечной',names:['Подсветка полок','Полки в прачечной'],k:L,w:.12,what:'подсветка полок',fx:{t:'shelves',x:220,w:180,ys:[100,150]},tag:[310,186],glow:[310,125,120,70]},
+  {id:'fan',name:'Вентиляция',kid:'Вытяжка в прачечной',names:['Вентиляция','Вытяжка Прачечная','Вытяжка в прачечной'],k:FAN,w:0,what:'вентилятор',fx:{t:'fan',x:545,y:60},tag:[450,104]},
+  {id:'floor',name:'Прачечная Пол',kid:'Пол в прачечной',names:['Прачечная Пол','Пол в прачечной'],k:HEAT,w:0,what:'тёплый пол',fx:{t:'heat',x1:20,x2:580,y1:352,y2:352},tag:[150,374]},
+  {id:'wall',name:'Прачечная стена',kid:'Стена в прачечной',names:['Прачечная стена','Стена в прачечной'],k:HEAT,w:0,what:'тёплая стена',fx:{t:'heat',x1:450,x2:585,y1:215,y2:320},tag:[470,374]}]},
+ {id:'bath',name:'Ванная',title:'Ванная',words:['ванна','ванная'],mention:['ванн'],station:false,map:[340,260,130,160],devices:[
+  {id:'lyustra',name:'Люстра',kid:'Свет в ванной',names:['Люстра','Свет Ванная','Свет в ванной'],k:L,w:.35,what:'споты на потолке',fx:{t:'spots',xs:[200,430,560]},tag:[210,64],glow:[300,170,280,170]},
+  {id:'dush',name:'Свет в душе',kid:'Душ',names:['Свет в душе','Душ'],k:L,w:.12,what:'подсветка в душе',fx:{t:'strip',segs:[[256,108,256,330]]},tag:[296,250],glow:[295,220,70,140]},
+  {id:'polki',name:'Подсветка полок',kid:'Полки в ванной',names:['Подсветка полок','Полки в ванной'],k:L,w:.1,what:'подсветка полок',fx:{t:'shelves',x:485,w:100,ys:[110,160]},tag:[530,86],glow:[535,135,80,70]},
+  {id:'podves',name:'Подвес',kid:'Подвес в ванной',names:['Подвес','Подвес в ванной'],k:L,w:.12,what:'подвесной светильник над ванной',fx:{t:'pendant',x:130,y:190},tag:[130,214],glow:[130,240,110,100]},
+  {id:'fan',name:'Вытяжка',kid:'Вытяжка в ванной',names:['Вытяжка','Вытяжка Ванная','Вытяжка в ванной'],k:FAN,w:0,what:'вентилятор',fx:{t:'fan',x:360,y:62},tag:[384,104]},
+  {id:'floor',name:'Ванная Пол',kid:'Пол в ванной',names:['Ванная Пол','Теплый пол ванная','Пол в ванной'],k:HEAT,w:0,what:'тёплый пол',fx:{t:'heat',x1:20,x2:580,y1:352,y2:352},tag:[150,374]},
+  {id:'wall',name:'Ванная Стена',kid:'Стена в ванной',names:['Ванная Стена','Стена в ванной'],k:HEAT,w:0,what:'тёплая стена',fx:{t:'heat',x1:470,x2:585,y1:215,y2:320},tag:[460,374]}]},
+ {id:'kitchen',name:'Кухня',title:'Кухня',words:['кухня'],mention:['кухн'],station:false,map:[480,230,410,190],devices:[
+  {id:'plita',name:'Свет над плитой',kid:'Плита',names:['Свет над плитой','Плита','Акцент Варочная Панель','Готовить'],k:L,w:.15,what:'спот над плитой',fx:{t:'spots',xs:[145]},tag:[145,64],glow:[145,220,90,110]},
+  {id:'moyka',name:'Свет над мойкой',kid:'Мойка',names:['Свет над мойкой','Мойка','Акцент Раковина','Готовить'],k:L,w:.15,what:'спот над мойкой',fx:{t:'spots',xs:[295]},tag:[280,64],glow:[295,220,90,110]},
+  {id:'palka',name:'Подсветка Кухня',kid:'Палка',names:['Подсветка Кухня','Подсветка на кухне','Палка','Палка на кухне'],k:L,w:.14,what:'палка на треке',fx:{t:'bar',x1:322,x2:392,y:120},tag:[357,148],glow:[357,200,100,110]},
+  {id:'posud',name:'Свет у посудомойки',kid:'Дальний спот',names:['Свет у посудомойки','Дальний спот','Акцент Посудомойка','Готовить'],k:L,w:.15,what:'спот у посудомойки',fx:{t:'spots',xs:[425]},tag:[435,64],glow:[425,220,90,110]},
+  {id:'fridge',name:'Холодильник',kid:'Свет у холодильника',names:['Холодильник','Свет у холодильника'],k:L,w:.12,what:'споты у холодильника',fx:{t:'spots',xs:[525]},tag:[515,96],glow:[525,200,90,140]}]},
+ {id:'prikh',name:'Прихожая',title:'Прихожая',words:['прихожая'],mention:['прихож'],station:false,map:[560,420,160,150],devices:[
+  {id:'main',name:'Свет Прихожая',kid:'Свет в прихожей',names:['Свет Прихожая','Свет в прихожей','Вход'],k:L,w:.35,what:'трек на потолке',fx:{t:'track',x1:120,x2:560,h:[200,420]},tag:[300,64],glow:[300,170,260,170]},
+  {id:'podsv',name:'Подсветка Прихожая',kid:'Подсветка в прихожей',names:['Подсветка Прихожая','Подсветка в прихожей','Вход'],k:L,w:.15,what:'подсветка шкафа и зеркала',fx:{t:'strip',segs:[[300,76,540,76],[376,100,376,320],[464,100,464,320]]},tag:[420,100],glow:[420,200,150,150]}]},
+ {id:'klad',name:'Кладовка',title:'Кладовка',words:['кладовка'],mention:['кладов'],station:false,map:[720,420,170,50],devices:[
+  {id:'main',name:'Свет Кладовка',kid:'Свет в кладовке',names:['Свет Кладовка','Свет в кладовке','Кладовка'],k:L,w:.35,what:'свет на потолке',fx:{t:'spots',xs:[180,450]},tag:[180,64],glow:[320,170,250,170]},
+  {id:'podsv',name:'Подсветка Кладовка',kid:'Подсветка в кладовке',names:['Подсветка Кладовка','Подсветка в кладовке','Кладовка'],k:L,w:.15,what:'подсветка фартука и полок',fx:{t:'strip',segs:[[326,178,564,178],[40,118,262,118],[40,178,262,178]]},tag:[445,214],glow:[400,215,150,80]},
+  {id:'fan',name:'Вытяжка',kid:'Вытяжка в кладовке',names:['Вытяжка','Вытяжка Кладовка','Вытяжка в кладовке'],k:FAN,w:0,what:'вентилятор',fx:{t:'fan',x:565,y:48},tag:[465,64]}]},
+ {id:'ofis',name:'Офис',title:'Офис (гостевой туалет)',words:['офис'],mention:['офис'],station:false,map:[720,470,170,50],devices:[
+  {id:'main',name:'Люстра',kid:'Свет в офисе',names:['Люстра','Свет Офис','Свет в офисе'],k:L,w:.35,what:'светильники на потолке',fx:{t:'spots',xs:[180,400]},tag:[180,64],glow:[300,170,240,170]},
+  {id:'mirror',name:'Зеркало',kid:'Зеркало в офисе',names:['Зеркало','Зеркало в офисе'],k:L,w:.12,what:'подсветка зеркала',fx:{t:'strip',segs:[[326,106,414,106],[326,106,326,214],[414,106,414,214],[326,214,414,214]]},tag:[370,236],glow:[370,160,90,80]},
+  {id:'bra',name:'Бра',kid:'Бра в офисе',names:['Бра','Бра в офисе'],k:L,w:.1,bra:1,what:'бра на стене',fx:{t:'bra',x:470,y:160},tag:[470,128],glow:[470,190,80,70]},
+  {id:'fan',name:'Вытяжка',kid:'Вытяжка в офисе',names:['Вытяжка','Вытяжка Офис','Вытяжка в офисе'],k:FAN,w:0,what:'вентилятор',fx:{t:'fan',x:560,y:60},tag:[440,64]},
+  {id:'floor',name:'Офис Пол',kid:'Пол в офисе',names:['Офис Пол','Пол в офисе'],k:HEAT,w:0,what:'тёплый пол',fx:{t:'heat',x1:20,x2:580,y1:352,y2:352},tag:[300,374]}]},
+ {id:'gard',name:'Гардероб',title:'Гардероб',words:['гардероб'],mention:['гардероб'],station:false,map:[720,520,170,50],devices:[
+  {id:'main',name:'Свет Гардероб',kid:'Свет в гардеробе',names:['Свет Гардероб','Свет в гардеробе','Вход'],k:L,w:.35,what:'верхний свет',fx:{t:'spots',xs:[200,400]},tag:[300,64],glow:[300,180,240,170]},
+  {id:'podsv',name:'Подсветка Гардероб',kid:'Подсветка в гардеробе',names:['Подсветка Гардероб','Подсветка в гардеробе','Вход'],k:L,w:.15,what:'подсветка полок',fx:{t:'strip',segs:[[60,100,540,100]]},tag:[300,252],glow:[300,150,240,110]}]}
+];
+const R={};ROOMS.forEach(r=>{R[r.id]=r;r.devices.forEach(d=>{d.room=r.id;d.gid=r.id+'.'+d.id})});
+const ALL=ROOMS.flatMap(r=>r.devices);
+const DEV={};ALL.forEach(d=>DEV[d.gid]=d);
+const LIGHTS=ALL.filter(d=>d.k===L).map(d=>d.gid);
+const FANS=ALL.filter(d=>d.k===FAN).map(d=>d.gid);
+const TVS=ALL.filter(d=>d.k===TV).map(d=>d.gid);
+const SCEN_WORDS=['мы дома','мы пришли','мы ушли','мы уходим','я ухожу','вход','ночник','ночной свет','готовим','режим готовки','моем посуду','убираем кухню','уроки','делаем уроки','кино','смотрим кино','спокойной ночи','мы спать','время спать','за стол','тарелки','дети подъем','мирон подъем','девочки подъем'];
+
+/* ================= state ================= */
+const S={};
+function resetState(onList){ALL.forEach(d=>S[d.gid]=d.k===CUR);(onList||[]).forEach(g=>S[g]=true)}
+let IDEAS=[]; // {who,kind:'dev'|'room',room,dev,name}
+
+/* ================= parser ================= */
+const ON=new Set(['включи','включить','включай','включите','зажги','зажечь','вруби','открой','открыть','открывай']);
+const OFF=new Set(['выключи','выключить','выключай','выключите','погаси','погасить','выруби','отключи','закрой','закрыть','закрывай']);
+const STOP=new Set(['пожалуйста','мне','нам','весь','все','всё','ну','давай','в','во','на','комнате','тут','здесь','мой','мою','моей','у','меня']);
+const SEP=new Set([',','и','потом','затем','а','ещё','еще']);
+function norm(s){return String(s).toLowerCase().replace(/ё/g,'е').replace(/[«»"“”!?;:()—–\-]/g,' ').replace(/[,.]/g,' , ').replace(/\s+/g,' ').trim()}
+function stem(aw,tw){const p=aw.length<=4?aw.length-1:aw.length-2;return tw.startsWith(aw.slice(0,Math.max(2,p)))&&Math.abs(tw.length-aw.length)<=3}
+function sigw(s){return norm(s).split(' ').filter(w=>w.length>=3||w==='тв')}
+function namesOf(d){return d.names.concat(IDEAS.filter(i=>i.kind==='dev'&&i.room===d.room&&i.dev===d.id).map(i=>i.name))}
+function roomWords(r){return r.words.concat(IDEAS.filter(i=>i.kind==='room'&&i.room===r.id).map(i=>norm(i.name)))}
+function mentionOf(words){for(const r of ROOMS)for(const w of words)if(r.mention.some(m=>w.startsWith(m)))return {room:r.id,word:w};return null}
+const lightsOf=rid=>R[rid].devices.filter(d=>d.k===L);
+
+/* returns {devs:[...]} or {err:'...'} */
+function resolve(rest,ctx){
+  const men=mentionOf(rest);
+  const core=men?rest.filter(w=>w!==men.word):rest;
+  const scopeRoom=men?men.room:ctx, heard=men||R[ctx].station;
+  if(core.length===1&&core[0]==='бра'&&heard){const b=R[scopeRoom].devices.filter(d=>d.bra);if(b.length)return {devs:b}}
+  const pool=men?R[men.room].devices:ALL;
+  let top=0,cands=[];
+  for(const d of pool){let best=0,bestN='';
+    for(const n of namesOf(d)){const aw=sigw(n);if(!aw.length)continue;
+      if(aw.every(a=>rest.some(t=>stem(a,t)))&&aw.length>best){best=aw.length;bestN=norm(n)}}
+    if(!best)continue;
+    if(best>top){top=best;cands=[{d,n:bestN}]}else if(best===top)cands.push({d,n:bestN});
+  }
+  const restSig=rest.filter(w=>w.length>=3||w==='тв').length;
+  const exact=cands.length&&top===restSig;
+  if(!exact&&core.length===1&&core[0]==='свет'){
+    if(!heard) return {err:'Не знаю, в какой комнате. Скажи: «включи свет в '+inRoom(ctx)+'».'};
+    return {devs:lightsOf(scopeRoom)};
+  }
+  if(!cands.length) return {err:null};
+  const rooms=[...new Set(cands.map(c=>c.d.room))];
+  if(rooms.length===1) return {devs:cands.map(c=>c.d)};
+  if(R[ctx].station&&rooms.includes(ctx)) return {devs:cands.filter(c=>c.d.room===ctx).map(c=>c.d)};
+  if(new Set(cands.map(c=>c.n)).size===1&&cands[0].n==='вход') return {devs:cands.map(c=>c.d)};
+  return {err:'Такое есть в нескольких комнатах: '+rooms.map(x=>R[x].name).join(', ')+'. Скажи, в какой.'};
+}
+function inRoom(rid){return {girls:'комнате девочек',miron:'комнате Мирона',living:'гостиной',corr:'коридоре',bed:'спальне',laundry:'прачечной',bath:'ванной',kitchen:'кухне',prikh:'прихожей',klad:'кладовке',ofis:'офисе',gard:'гардеробе'}[rid]}
+function setAll(list,v){list.forEach(g=>S[g]=v)}
+const SCEN=[
+  {re:/^мы дома$|^мы пришли$/,fn:()=>{setAll(['prikh.main','prikh.podsv','gard.main','kitchen.fridge','corr.podsv','girls.door','miron.top','bed.shkaf'],true);return 'С возвращением! Включаю свет в прихожей и по дороге в комнаты.'}},
+  {re:/^мы ушли$|^мы уходим$|^я ухожу$/,fn:()=>{setAll(LIGHTS,false);setAll(FANS,false);setAll(TVS,false);return 'Пока! Выключаю свет, вытяжки и телевизоры во всей квартире.'}},
+  {re:/^вход$/,fn:()=>{setAll(['prikh.main','prikh.podsv','gard.main','gard.podsv'],true);return 'Включаю свет в прихожей и гардеробе.'}},
+  {re:/^ночник$|^ночной свет$/,fn:()=>{setAll(['corr.podsv','bath.podves'],true);return 'Включаю ночной свет: подсветку в коридоре и подвес в ванной.'}},
+  {re:/^готовим$|^режим готовки$/,fn:()=>{setAll(['kitchen.plita','kitchen.moyka'],true);return 'Включаю свет над плитой и мойкой.'}},
+  {re:/^моем посуду$|^убираем кухню$/,fn:()=>{setAll(['kitchen.palka','kitchen.posud'],true);return 'Включаю палку и дальний спот у посудомойки.'}},
+  {re:/^уроки$|^делаем уроки$/,fn:()=>{setAll(['girls.desk','girls.shelf','girls.main'],true);return 'Включаю у девочек стол, полки и главный свет. Пора за уроки!'}},
+  {re:/^кино$|^смотрим кино$/,fn:()=>{setAll(['living.lyustra','living.stena','living.shkaf'],false);setAll(lightsOf('kitchen').map(d=>d.gid),false);setAll(['living.divan','living.kamin'],true);return 'Приятного просмотра! Гашу свет, включаю подсветку дивана и палку над камином.'}},
+  {re:/спокойн\S* ноч|^мы спать$/,fn:()=>{setAll(LIGHTS,false);setAll(TVS,false);setAll(['corr.podsv','bath.podves'],true);return 'Спокойной ночи! Гашу весь свет. В коридоре останется подсветка, в ванной подвес.'}},
+  {re:/подъем|вставай/,fn:()=>'Это утренний сценарий: свет, бодрая музыка и громкость понемногу растёт. Проверим утром по-настоящему!'},
+  {re:/^время спать$/,fn:()=>'Колонки зовут детей спать.'},
+  {re:/^за стол$/,fn:()=>'Колонки зовут всех к столу!'},
+  {re:/^тарелки$/,fn:()=>'Колонки просят убрать за собой тарелки.'},
+  {re:/привет|здравствуй/,fn:()=>'Привет! Что включить?'},
+  {re:/как дела/,fn:()=>'Отлично! Включить что-нибудь?'}
+];
+function scenario(ph,ctx){
+  if(!ph) return '';
+  for(const r of ROOMS){if(roomWords(r).includes(ph)){r.devices.forEach(d=>{if(d.k===L||d.k===FAN)S[d.gid]=false});return r.id===ctx?'Гашу свет в комнате.':'Гашу свет: '+R[r.id].name+'.'}}
+  for(const s of SCEN) if(s.re.test(ph)) return s.fn();
+  return 'Не поняла. Скажи, что сделать: «включи…» или «выключи…».';
+}
+function run(text,ctx){
+  const toks=norm(text).split(' ').filter(Boolean);
+  if(!toks.length) return 'Я слушаю. Начни с «Алиса, …»';
+  const chunks=[];let cur=[];
+  for(const t of toks){if(t==='алиса'){if(cur.length)chunks.push(cur);cur=[]}else cur.push(t)}
+  if(cur.length)chunks.push(cur);
+  const out=[];
+  for(const ch of chunks){
+    const segs=[];let s=[];
+    for(const t of ch){if(SEP.has(t)){if(s.length)segs.push(s);s=[]}else s.push(t)}
+    if(s.length)segs.push(s);
+    let verb=null;
+    for(const seg of segs){
+      let v=null;const rest=[];
+      for(const w of seg){if(ON.has(w))v='on';else if(OFF.has(w))v='off';else if(!STOP.has(w))rest.push(w)}
+      if(v)verb=v;
+      const ph=rest.join(' ');
+      if(!verb){out.push(scenario(ph,ctx));continue}
+      if(!rest.length){out.push(verb==='on'?'Что включить?':'Что выключить?');continue}
+      if(/^ночник/.test(ph)){out.push('«Включи ночник» — это команда для подсветки колонки. Для ночного света скажи «Алиса, ночной свет».');continue}
+      if(/музык|песн/.test(ph)){out.push(verb==='on'?'Включаю музыку!':'Выключаю музыку.');continue}
+      const res=resolve(rest,ctx);
+      if(res.err){out.push(res.err);continue}
+      if(!res.devs){out.push('Не нашла «'+rest.join(' ')+'». Нажми на лампу — узнаешь её имя.');continue}
+      res.devs.forEach(d=>S[d.gid]=verb==='on');
+      const cur=res.devs[0].k===CUR;
+      out.push(verb==='on'?(cur?'Открываю.':'Включаю.'):(cur?'Закрываю.':'Выключаю.'));
+    }
+  }
+  return [...new Set(out.filter(Boolean))].join(' ');
+}
+
+/* ================= quests ================= */
+const QUESTS={
+ miron:[
+  {view:'miron',text:'Ты залез на чердак с книжкой. Наверху темно!',start:[],on:['miron.up'],off:['miron.down'],hint:'Как зовут лампу наверху?',
+   opts:[{p:'Алиса, включи чердак',ic:'bra'},{p:'Алиса, включи первый этаж',ic:'bra',why:'Загорелось внизу, а ты наверху.'},{p:'Алиса, включи телевизор',ic:'tv',why:'Телевизора у тебя в комнате нет. Алиса спросит, какой включить.'}]},
+  {view:'miron',text:'Хочешь порисовать за столом.',start:[],on:['miron.desk'],hint:'Лампа над столом так и зовётся.',
+   opts:[{p:'Алиса, включи полки',ic:'shelf',why:'Полки светят слабо, рисовать темно.'},{p:'Алиса, включи стол',ic:'pendant'},{p:'Алиса, включи чердак',ic:'bra',why:'Загорелось наверху, а стол внизу.'}]},
+  {view:'miron',text:'Ты играешь внизу, под кроватью. Нужен свет!',start:[],on:['miron.down'],off:['miron.up'],hint:'Внизу — это какой этаж?',
+   opts:[{p:'Алиса, включи второй этаж',ic:'bra',why:'Второй этаж — это наверху.'},{p:'Алиса, включи стол',ic:'pendant',why:'Стол далеко от кровати.'},{p:'Алиса, включи первый этаж',ic:'bra'}]},
+  {view:'miron',text:'Мама говорит: включи большой свет, будем убирать игрушки.',start:[],on:['miron.top'],hint:'Свет называется так, как сказала мама.',
+   opts:[{p:'Алиса, включи большой свет',ic:'spots'},{p:'Алиса, включи полки',ic:'shelf',why:'Полками светло не станет.'},{p:'Алиса, привет',ic:'hello',why:'Алиса поздоровалась, а свет не включила.'}]},
+  {view:'miron',text:'Пора спать, а свет горит везде. Погаси всё одним словом!',start:['miron.top','miron.desk','miron.shelf','miron.down'],off:['miron.top','miron.desk','miron.shelf','miron.down','miron.up','miron.track'],hint:'Скажи Алисе название своей комнаты.',
+   opts:[{p:'Алиса, выключи стол',ic:'pendant',why:'Погас только стол, остальное горит.'},{p:'Алиса, Мирон',ic:'moon'},{p:'Алиса, включи чердак',ic:'bra',why:'Стало ещё светлее!'}]},
+  {view:'map',ctx:'miron',text:'Вы вернулись с прогулки. Скажи Алисе, что вы дома!',start:[],on:['prikh.main','corr.podsv'],hint:'Скажи прямо: мы…',
+   opts:[{p:'Алиса, привет',ic:'hello',why:'Алиса поздоровалась, а в прихожей темно.'},{p:'Алиса, мы дома',ic:'house'},{p:'Алиса, включи чердак',ic:'bra',why:'Загорелось только у тебя наверху.'}]},
+  {view:'map',ctx:'miron',text:'Ночью захотел в туалет. Нужен тихий свет в коридоре и ванной.',start:[],on:['corr.podsv','bath.podves'],off:['corr.main'],hint:'Ночной…',
+   opts:[{p:'Алиса, ночной свет',ic:'moon'},{p:'Алиса, включи большой свет',ic:'spots',why:'Загорелось у тебя в комнате, а в коридоре темно.'},{p:'Алиса, Мирон',ic:'moon',why:'Это гасит свет у тебя. В коридоре так и темно.'}]}
+ ],
+ girls:[
+  {view:'girls',text:'Яся хочет почитать в кровати, а Еся уже спит.',start:[],on:['girls.yasya'],off:['girls.esya','girls.main','girls.door','girls.desk','girls.shelf'],hint:'Нужна только лампа у кровати Яси.',
+   opts:[{p:'Алиса, включи свет',why:'«Включи свет» зажигает всё в комнате. Еся проснётся!'},{p:'Алиса, включи светильник Яся'},{p:'Алиса, включи главный свет',why:'Главный свет яркий, Еся проснётся.'}]},
+  {view:'girls',text:'Время делать уроки. Включи только лампу над столом.',start:[],on:['girls.desk'],off:['girls.main'],hint:'Лампа над столом.',
+   opts:[{p:'Алиса, включи полки',why:'Полками стол не осветить.'},{p:'Алиса, включи светильник Еся',why:'Это лампа у кровати.'},{p:'Алиса, включи стол'}]},
+  {view:'girls',text:'Ночью надо тихонько взять кофту из шкафа у двери.',start:[],on:['girls.door'],off:['girls.main'],hint:'Лампы у двери.',
+   opts:[{p:'Алиса, включи свет у двери'},{p:'Алиса, включи главный свет',why:'Слишком ярко, все проснутся.'},{p:'Алиса, включи полки',why:'Шкаф у двери так не осветить.'}]},
+  {view:'girls',text:'Пришли гости, нужно светло во всей комнате!',start:[],on:['girls.main'],hint:'Самый большой свет в комнате.',
+   opts:[{p:'Алиса, включи стол',why:'Светло только у стола.'},{p:'Алиса, включи главный свет'},{p:'Алиса, включи светильник Яся',why:'Это маленькая лампа у кровати.'}]},
+  {view:'girls',text:'Хотим смотреть мультик при полках. Сейчас горит главный свет и стол.',start:['girls.main','girls.desk'],on:['girls.shelf'],off:['girls.main','girls.desk'],hint:'Сначала погаси комнату её названием, потом включи полки.',
+   opts:[{p:'Алиса, включи полки',why:'Полки зажглись, но главный свет и стол тоже горят.'},{p:'Алиса, девочки. Алиса, включи полки'},{p:'Алиса, выключи свет',why:'Погасло всё, и полки тоже.'}]},
+  {view:'girls',text:'Есть волшебное слово, которое сразу включает всё для уроков. Какое?',start:[],on:['girls.desk','girls.shelf','girls.main'],hint:'Как называется то, что задают в школе?',
+   opts:[{p:'Алиса, уроки'},{p:'Алиса, включи стол',why:'Горит только стол. А волшебное слово включает ещё полки и главный свет.'},{p:'Алиса, школа',why:'Такого слова Алиса не знает.'}]},
+  {view:'map',ctx:'girls',text:'Мама готовит ужин. Включи свет над плитой и мойкой одним словом.',start:[],on:['kitchen.plita','kitchen.moyka'],hint:'Что мама делает на кухне?',
+   opts:[{p:'Алиса, включи плиту',why:'Зажглась только плита. А мойка?'},{p:'Алиса, кухня',why:'«Кухня» гасит свет на кухне.'},{p:'Алиса, готовим'}]},
+  {view:'map',ctx:'girls',text:'Вся семья смотрит кино в гостиной.',start:['living.lyustra','living.shkaf','kitchen.palka'],on:['living.divan','living.kamin'],off:['living.lyustra','living.shkaf','kitchen.palka'],hint:'Одно слово: то, что смотрят.',
+   opts:[{p:'Алиса, кино'},{p:'Алиса, гостиная',why:'Погасло всё, даже подсветка дивана.'},{p:'Алиса, включи телевизор',why:'Телевизоры есть в гостиной и в спальне. Алиса спросит, какой.'}]},
+  {view:'bath',ctx:'bath',text:'Ты в ванной после душа, надо проветрить. Колонки в ванной нет!',start:['bath.lyustra'],on:['bath.fan'],hint:'Назови вытяжку и комнату.',
+   opts:[{p:'Алиса, включи вытяжку',why:'Вытяжки есть в нескольких комнатах. Алиса не знает, какую.'},{p:'Алиса, включи вытяжку в ванной'},{p:'Алиса, включи свет',why:'Колонка не знает, в какой ты комнате, и свет уже горит.'}]},
+  {view:'map',ctx:'girls',text:'Уходим в школу. Надо выключить всё в квартире.',start:['girls.main','girls.desk','kitchen.plita','corr.main','bath.fan','bed.tv'],off:['girls.main','girls.desk','kitchen.plita','corr.main','bath.fan','bed.tv'],hint:'Скажи: мы…',
+   opts:[{p:'Алиса, девочки',why:'Погасло только у вас в комнате.'},{p:'Алиса, мы уходим'},{p:'Алиса, выключи стол',why:'Погас только стол.'}]},
+  {view:'map',ctx:'girls',text:'Вся семья ложится спать.',start:['girls.main','girls.shelf','girls.esya','living.lyustra','bed.tv'],off:['girls.main','girls.shelf','girls.esya','living.lyustra','bed.tv'],on:['corr.podsv'],hint:'Пожелай Алисе спокойной ночи.',
+   opts:[{p:'Алиса, выключи стол',why:'Стол и так не горел, остальное горит.'},{p:'Алиса, девочки',why:'Погасло у вас, а в гостиной и спальне горит.'},{p:'Алиса, спокойной ночи'}]}
+ ]
+};
+const AIQ=[
+  {text:'Хочешь, чтобы ИИ нарисовал кота. Как лучше попросить?',opts:[{p:'Нарисуй кота',why:'ИИ нарисует какого-то кота. Расскажи подробнее, какого.'},{p:'Нарисуй рыжего кота в шапке, который катается на скейте'},{p:'Кот',why:'Непонятно, что сделать: нарисовать, рассказать или найти?'}]},
+  {text:'ИИ ответил что-то странное. Что делать?',opts:[{p:'Поверить: он же умный',why:'ИИ иногда ошибается и придумывает.'},{p:'Обидеться и уйти',why:'Лучше разобраться.'},{p:'Проверить или спросить взрослого'}]},
+  {text:'Можно рассказать ИИ свой адрес и пароль?',opts:[{p:'Нет, это секрет'},{p:'Да, он никому не скажет',why:'Адрес и пароли — секрет. Их не говорим ни ИИ, ни незнакомым.'},{p:'Только пароль',why:'Пароль — тоже секрет.'}]}
+];
+AIQ.forEach(q=>q.right=q.opts.findIndex(o=>!o.why));
+function checkQuest(q){
+  const okOn=(q.on||[]).every(g=>S[g]),okOff=(q.off||[]).every(g=>!S[g]);
+  return {ok:okOn&&okOff,missing:(q.on||[]).filter(g=>!S[g]),extra:(q.off||[]).filter(g=>S[g])};
+}
+if(typeof module!=='undefined')module.exports={run,resetState,S,QUESTS,checkQuest,DEV,R,IDEAS};
+</script>
+
+<script>
+(function(){
+/* ================= storage ================= */
+function load(){try{const v=localStorage.getItem('vesyoly-dom-v1');return v?JSON.parse(v):null}catch(e){return null}}
+function save(){try{localStorage.setItem('vesyoly-dom-v1',JSON.stringify({player,stars,ideas:IDEAS,sound}))}catch(e){}}
+const saved=load()||{};
+let player=(function(){try{const f=localStorage.getItem('family-player');if(PLAYERS[f])return f}catch(e){}return PLAYERS[saved.player]?saved.player:'miron'})();
+let stars=saved.stars||{miron:{},yasya:{},esya:{}};
+IDEAS.push(...(saved.ideas||[]));
+let sound=saved.sound||{miron:true,yasya:false,esya:false};
+
+let screen='hub', view='map', ctxOverride=null, tab='room', sel=null, nameMode='dev', nameDev=null, nameRoom=null;
+let qIdx={miron:0,yasya:0,esya:0}, qState=null, aiIdx=0, aiState=null;
+
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const lc=s=>s.charAt(0).toLowerCase()+s.slice(1);
+const P=()=>PLAYERS[player];
+const ctx=()=>ctxOverride||(view==='map'?P().home:view);
+function academyStars(p){try{const d=JSON.parse(localStorage.getItem('ai-academy-v1')||'{}');return Object.keys((d.progress||{})[p]||{}).length}catch(e){return 0}}
+function total(p){return Object.keys(stars[p]||{}).length+academyStars(p)}
+function worldStars(p,w){return Object.keys(stars[p]||{}).filter(k=>k.startsWith(w+':')).length}
+function addStar(key){if(stars[player][key])return false;stars[player][key]=1;save();renderMe();return true}
+function level(n){let cur=LEVELS[0],next=null;for(let i=0;i<LEVELS.length;i++){if(n>=LEVELS[i][0]){cur=LEVELS[i];next=LEVELS[i+1]||null}}return{name:cur[1],from:cur[0],next}}
+function starSvg(s){return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 21l1.6-7L2 9.2l7.1-.6z" fill="currentColor"/></svg>`}
+function spkSvg(){return `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="var(--alice)"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="var(--alice)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`}
+const spk=t=>`<button class="spk" type="button" data-say="${esc(t)}" aria-label="Послушать">${spkSvg()}</button>`;
+function speakNow(t){try{const u=new SpeechSynthesisUtterance(String(t).replace(/[«»]/g,''));u.lang='ru-RU';u.rate=.95;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function speak(t){if(sound[player])speakNow(t)}
+
+/* ================= svg: fixtures ================= */
+function tag(d,x,y){const label=d.kid;const w=Math.round(label.length*7.6+20);x=Math.min(Math.max(x,w/2+4),596-w/2);return `<g class="tag" data-g="${d.gid}" transform="translate(${x-w/2},${y-12})"><rect width="${w}" height="24" rx="12"/><text x="${w/2}" y="16.5" text-anchor="middle">${esc(label)}</text></g>`}
+function fx(d){const f=d.fx,g=d.gid;let s='';
+  switch(f.t){
+  case 'bra':s=`<rect class="hit" x="${f.x-26}" y="${f.y-26}" width="52" height="52"/><rect x="${f.x-3}" y="${f.y-2}" width="6" height="16" fill="#3A4266"/><path class="lampbody" d="M${f.x-16} ${f.y+6} Q${f.x} ${f.y-22} ${f.x+16} ${f.y+6} Z"/><circle class="bulb" cx="${f.x}" cy="${f.y+6}" r="5"/>`;break;
+  case 'pendant':s=`<rect class="hit" x="${f.x-26}" y="20" width="52" height="${f.y-5}"/><line x1="${f.x}" y1="20" x2="${f.x}" y2="${f.y-18}" stroke="#3A4266" stroke-width="2"/><path class="lampbody" d="M${f.x-8} ${f.y-20} L${f.x+8} ${f.y-20} L${f.x+22} ${f.y} L${f.x-22} ${f.y} Z"/><ellipse class="bulb" cx="${f.x}" cy="${f.y+1}" rx="8" ry="4"/>`;break;
+  case 'spots':s=f.xs.map(x=>`<rect class="hit" x="${x-22}" y="14" width="44" height="38"/><rect x="${x-9}" y="20" width="18" height="6" fill="#3A4266"/><path class="lampbody" d="M${x-6} 26 L${x+6} 26 L${x+8} 38 L${x-8} 38 Z"/><ellipse class="bulb" cx="${x}" cy="38" rx="7" ry="3"/>`).join('');break;
+  case 'track':s=`<rect class="hit" x="${f.x1}" y="16" width="${f.x2-f.x1}" height="40"/><rect x="${f.x1}" y="22" width="${f.x2-f.x1}" height="6" rx="3" fill="#3A4266"/>`+f.h.map(h=>`<path class="lampbody" d="M${h-7} 28 L${h+7} 28 L${h+10} 46 L${h-10} 46 Z"/><ellipse class="bulb" cx="${h}" cy="46" rx="9" ry="3.5"/>`).join('');break;
+  case 'shelves':s=`<rect class="hit" x="${f.x-6}" y="${f.ys[0]-46}" width="${f.w+12}" height="${f.ys[f.ys.length-1]-f.ys[0]+60}"/>`+f.ys.map(y=>`<rect x="${f.x}" y="${y}" width="${f.w}" height="7" fill="var(--wood)"/><line class="strip" x1="${f.x+6}" y1="${y+11}" x2="${f.x+f.w-6}" y2="${y+11}"/>`).join('');break;
+  case 'strip':s=f.segs.map(([a,b,c,e])=>`<line class="hit" x1="${a}" y1="${b}" x2="${c}" y2="${e}" stroke="transparent" stroke-width="22"/><line class="strip" x1="${a}" y1="${b}" x2="${c}" y2="${e}"/>`).join('');break;
+  case 'chand':s=`<rect class="hit" x="${f.x-40}" y="20" width="80" height="${f.y+5}"/><line x1="${f.x}" y1="20" x2="${f.x}" y2="${f.y-14}" stroke="#3A4266" stroke-width="2"/><path d="M${f.x-32} ${f.y} Q${f.x} ${f.y-26} ${f.x+32} ${f.y}" stroke="#3A4266" stroke-width="3" fill="none"/>`+[-32,0,32].map(o=>`<path class="lampbody" d="M${f.x+o-9} ${f.y+(o?0:-12)} L${f.x+o+9} ${f.y+(o?0:-12)} L${f.x+o+6} ${f.y+(o?14:2)} L${f.x+o-6} ${f.y+(o?14:2)} Z"/>`).join('');break;
+  case 'bar':s=`<rect class="hit" x="${f.x1-10}" y="20" width="${f.x2-f.x1+20}" height="${f.y}"/><line x1="${f.x1+6}" y1="20" x2="${f.x1+6}" y2="${f.y}" stroke="#3A4266" stroke-width="1.5"/><line x1="${f.x2-6}" y1="20" x2="${f.x2-6}" y2="${f.y}" stroke="#3A4266" stroke-width="1.5"/><rect class="lampbody" x="${f.x1}" y="${f.y}" width="${f.x2-f.x1}" height="8" rx="4"/>`;break;
+  case 'fan':s=`<rect class="hit" x="${f.x-26}" y="${f.y-26}" width="52" height="52"/><circle cx="${f.x}" cy="${f.y}" r="18" fill="#2A3150" stroke="#59607E" stroke-width="2"/><g class="blades"><path d="M${f.x} ${f.y} L${f.x-4} ${f.y-14} Q${f.x} ${f.y-17} ${f.x+4} ${f.y-14}Z M${f.x} ${f.y} L${f.x+14} ${f.y-4} Q${f.x+17} ${f.y} ${f.x+14} ${f.y+4}Z M${f.x} ${f.y} L${f.x+4} ${f.y+14} Q${f.x} ${f.y+17} ${f.x-4} ${f.y+14}Z M${f.x} ${f.y} L${f.x-14} ${f.y+4} Q${f.x-17} ${f.y} ${f.x-14} ${f.y-4}Z"/></g><circle cx="${f.x}" cy="${f.y}" r="3" fill="#2A3150"/>`;break;
+  case 'heat':{const rows=[];for(let y=f.y1;y<=f.y2;y+=26)rows.push(y);
+    s=`<rect class="hit" x="${f.x1}" y="${f.y1-12}" width="${f.x2-f.x1}" height="${f.y2-f.y1+24}"/>`+rows.map(y=>{let p=`M${f.x1+6} ${y}`;for(let x=f.x1+6;x<f.x2-12;x+=24)p+=` q6 -6 12 0 t12 0`;return `<path class="wave" d="${p}"/>`}).join('');break}
+  case 'tv':s=`<rect class="hit" x="${f.x-6}" y="${f.y-6}" width="${f.w+12}" height="${f.h+12}"/><rect x="${f.x-4}" y="${f.y-4}" width="${f.w+8}" height="${f.h+8}" rx="4" fill="#232A44"/><rect class="screen" x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}" rx="2"/><g class="pict"><circle cx="${f.x+f.w*.3}" cy="${f.y+f.h*.45}" r="${f.h*.18}" fill="#FFE08A"/><path d="M${f.x} ${f.y+f.h} L${f.x+f.w*.45} ${f.y+f.h*.55} L${f.x+f.w*.7} ${f.y+f.h*.8} L${f.x+f.w} ${f.y+f.h*.5} V${f.y+f.h}Z" fill="#3E8E5A"/></g>`;break;
+  case 'curtain':s=`<rect class="hit" x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}"/><rect x="${f.x-4}" y="${f.y-6}" width="${f.w+8}" height="5" fill="#3A4266"/><rect class="curl" x="${f.x}" y="${f.y}" width="${f.w/2}" height="${f.h}"/><rect class="curr" x="${f.x+f.w/2}" y="${f.y}" width="${f.w/2}" height="${f.h}"/>`;break;
+  }
+  return `<g class="fx" data-g="${g}">${s}</g>`;
+}
+function glow(d){if(!d.glow)return'';const[cx,cy,rx,ry]=d.glow;return `<ellipse class="glow" data-gl="${d.gid}" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${d.k===TV?'gtv':'gl'})"/>`}
+function station(x,y){return `<g class="station"><circle class="ring" cx="${x}" cy="${y}" r="17"/><rect x="${x-12}" y="${y-12}" width="24" height="24" rx="7" fill="#2A2F45"/><circle cx="${x}" cy="${y-1}" r="6" fill="var(--alice)"/></g>`}
+const DEFS=`<defs><radialGradient id="gl"><stop offset="0" stop-color="#FFD98A" stop-opacity=".85"/><stop offset=".55" stop-color="#FFC94D" stop-opacity=".28"/><stop offset="1" stop-color="#FFC94D" stop-opacity="0"/></radialGradient><radialGradient id="gtv"><stop offset="0" stop-color="#8FD0FF" stop-opacity=".7"/><stop offset="1" stop-color="#6EC3FF" stop-opacity="0"/></radialGradient></defs>`;
+
+/* ================= svg: furniture per room ================= */
+const BASE=`<rect width="600" height="340" fill="var(--wall)"/><rect width="600" height="20" fill="var(--wall2)"/><rect y="340" width="600" height="60" fill="var(--floor)"/>`;
+function win(x,y,w,h){let st='';for(let i=0;i<6;i++)st+=`<circle cx="${x+10+((i*37)%(w-20))}" cy="${y+10+((i*23)%(h-30))}" r="${i%2?1.6:2.4}" fill="#FFF3C4"/>`;
+  return `<rect x="${x-6}" y="${y-6}" width="${w+12}" height="${h+12}" rx="4" fill="#EFE7D6"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="var(--sky)"/>${st}<circle cx="${x+w-24}" cy="${y+26}" r="12" fill="#FFF3C4"/><circle cx="${x+w-19}" cy="${y+22}" r="11" fill="var(--sky)"/><line x1="${x+w/2}" y1="${y}" x2="${x+w/2}" y2="${y+h}" stroke="#EFE7D6" stroke-width="4"/>`}
+function books(x,y,n){const c=['#5DA6DE','#E58FB5','#6FBF8A','#E9A55B','#9B8FE5'];let s='',cx=x;for(let i=0;i<n;i++){const h=24+((i*7)%12);s+=`<rect x="${cx}" y="${y-h}" width="9" height="${h}" fill="${c[i%5]}"/>`;cx+=11}return s}
+function doorF(x,w){return `<rect x="${x}" y="130" width="${w}" height="210" rx="3" fill="var(--wood)"/><rect x="${x+6}" y="136" width="${w-12}" height="204" fill="var(--wood2)"/><circle cx="${x+w-14}" cy="240" r="4" fill="#E9C46A"/>`}
+function table(x,w,y){return `<rect x="${x}" y="${y}" width="${w}" height="10" rx="3" fill="var(--wood)"/><rect x="${x+6}" y="${y+10}" width="8" height="${340-y-10}" fill="var(--wood2)"/><rect x="${x+w-14}" y="${y+10}" width="8" height="${340-y-10}" fill="var(--wood2)"/>`}
+const TRACKBASE=(x1,x2)=>`<rect x="${x1}" y="22" width="${x2-x1}" height="6" rx="3" fill="#3A4266"/>`;
+const FURN={
+ miron:()=>BASE+win(250,70,96,110)+`<rect x="30" y="186" width="8" height="154" fill="var(--wood2)"/><rect x="222" y="186" width="8" height="154" fill="var(--wood2)"/><rect x="26" y="178" width="208" height="14" rx="3" fill="var(--wood)"/><rect x="26" y="134" width="208" height="6" rx="3" fill="var(--wood)"/><rect x="26" y="134" width="6" height="46" fill="var(--wood)"/><rect x="228" y="134" width="6" height="46" fill="var(--wood)"/><rect x="34" y="162" width="192" height="17" rx="7" fill="var(--bedding)"/><rect x="40" y="152" width="42" height="14" rx="7" fill="#fff"/><rect x="88" y="157" width="136" height="20" rx="9" fill="var(--green)"/><rect x="240" y="178" width="5" height="162" fill="var(--wood2)"/><rect x="264" y="178" width="5" height="162" fill="var(--wood2)"/>${[205,232,259,286,313].map(y=>`<rect x="240" y="${y}" width="29" height="5" fill="var(--wood)"/>`).join('')}<ellipse cx="128" cy="342" rx="86" ry="8" fill="#5DA6DE" opacity=".7"/><rect x="146" y="300" width="56" height="40" rx="4" fill="#E9A55B"/><rect x="146" y="300" width="56" height="9" fill="#C9853D"/><circle cx="70" cy="326" r="14" fill="#E58FB5"/>`+table(390,176,262)+`<rect x="418" y="250" width="54" height="12" fill="#fff"/><rect x="440" y="300" width="50" height="7" rx="2" fill="#5DA6DE"/><rect x="484" y="248" width="7" height="58" fill="#5DA6DE"/><rect x="444" y="307" width="5" height="33" fill="#3E7FB3"/>${books(386,100,5)}${books(392,150,4)}`,
+ girls:()=>BASE+win(40,72,100,108)+`<rect x="534" y="140" width="58" height="200" rx="3" fill="var(--wood)"/><rect x="540" y="146" width="46" height="194" fill="var(--wood2)"/><circle cx="548" cy="250" r="4" fill="#E9C46A"/><rect x="20" y="248" width="10" height="92" rx="3" fill="var(--wood2)"/><rect x="24" y="300" width="170" height="30" rx="4" fill="var(--wood)"/><rect x="30" y="286" width="164" height="16" rx="7" fill="var(--bedding)"/><rect x="34" y="276" width="40" height="14" rx="7" fill="#fff"/><rect x="80" y="282" width="114" height="22" rx="9" fill="var(--blue)"/>`+table(220,132,262)+`<rect x="246" y="250" width="40" height="12" fill="#fff"/><rect x="512" y="248" width="10" height="92" rx="3" fill="var(--wood2)"/><rect x="362" y="300" width="156" height="30" rx="4" fill="var(--wood)"/><rect x="362" y="286" width="152" height="16" rx="7" fill="var(--bedding)"/><rect x="468" y="276" width="40" height="14" rx="7" fill="#fff"/><rect x="362" y="282" width="102" height="22" rx="9" fill="var(--pink)"/><ellipse cx="290" cy="344" rx="70" ry="7" fill="#9B8FE5" opacity=".7"/>${books(372,104,6)}${books(380,150,5)}`,
+ living:()=>BASE+TRACKBASE(140,590)+win(20,60,100,190)+`<rect x="140" y="250" width="90" height="90" rx="4" fill="#3B3F52"/><rect x="152" y="270" width="66" height="50" fill="#1C2033"/><path d="M175 318 q8 -26 12 -6 q6 -24 14 4 z" fill="#FF8A4C"/>`+table(250,100,268)+`<rect x="256" y="290" width="22" height="6" fill="var(--wood2)"/><rect x="322" y="290" width="22" height="6" fill="var(--wood2)"/><rect x="362" y="280" width="110" height="44" rx="12" fill="#6C7BB5"/><rect x="362" y="262" width="110" height="26" rx="10" fill="#7E8CC6"/><rect x="356" y="290" width="14" height="40" rx="6" fill="#5A68A0"/><rect x="464" y="290" width="14" height="40" rx="6" fill="#5A68A0"/><rect x="482" y="270" width="108" height="70" rx="3" fill="var(--wood)"/><line x1="536" y1="274" x2="536" y2="336" stroke="var(--wood2)" stroke-width="2"/>`,
+ corr:()=>BASE+doorF(60,60)+doorF(250,60)+doorF(440,60)+`<rect x="150" y="150" width="70" height="52" fill="#EFE7D6"/><rect x="156" y="156" width="58" height="40" fill="#6FBF8A"/><circle cx="200" cy="168" r="6" fill="#FFE08A"/><rect x="340" y="150" width="70" height="52" fill="#EFE7D6"/><rect x="346" y="156" width="58" height="40" fill="#E58FB5"/><rect x="0" y="336" width="600" height="4" fill="var(--wall2)"/>`,
+ bed:()=>BASE+win(20,70,80,130)+`<rect x="110" y="296" width="36" height="44" rx="3" fill="var(--wood)"/><rect x="150" y="220" width="16" height="120" rx="4" fill="var(--wood2)"/><rect x="160" y="300" width="270" height="32" rx="4" fill="var(--wood)"/><rect x="164" y="284" width="266" height="18" rx="8" fill="var(--bedding)"/><rect x="172" y="272" width="50" height="16" rx="8" fill="#fff"/><rect x="228" y="276" width="202" height="26" rx="10" fill="#9B8FE5"/><rect x="480" y="70" width="115" height="270" rx="3" fill="var(--wood)"/><rect x="486" y="76" width="50" height="264" fill="var(--wood2)"/><rect x="539" y="76" width="50" height="264" fill="var(--wood2)"/>`,
+ laundry:()=>BASE+`<rect x="50" y="240" width="110" height="100" rx="8" fill="#E7ECF2"/><circle cx="105" cy="295" r="30" fill="#9FB2C6"/><circle cx="105" cy="295" r="22" fill="#5DA6DE"/><rect x="50" y="140" width="110" height="98" rx="8" fill="#DCE3EA"/><circle cx="105" cy="190" r="26" fill="#9FB2C6"/><rect x="240" y="290" width="80" height="50" rx="8" fill="#C9A16B"/><rect x="246" y="280" width="20" height="14" fill="var(--pink)"/><rect x="272" y="282" width="24" height="12" fill="var(--blue)"/>${books(226,100,7)}${books(232,150,6)}`,
+ bath:()=>BASE+`<rect x="30" y="280" width="200" height="60" rx="18" fill="#F4F6F8"/><rect x="40" y="276" width="180" height="12" rx="6" fill="#9FD3F0"/><rect x="250" y="100" width="90" height="240" fill="var(--glass)" opacity=".45"/><rect x="250" y="100" width="90" height="240" fill="none" stroke="#8FA3B8" stroke-width="2"/><path d="M300 110 v18 h18" stroke="#8FA3B8" stroke-width="3" fill="none"/><circle cx="318" cy="132" r="7" fill="#8FA3B8"/><rect x="380" y="260" width="80" height="80" rx="4" fill="var(--wood)"/><rect x="384" y="250" width="72" height="12" rx="5" fill="#F4F6F8"/><rect x="385" y="128" width="70" height="92" rx="6" fill="var(--glass)"/>${books(492,110,7)}${books(492,160,6)}`,
+ kitchen:()=>BASE+TRACKBASE(40,580)+`<rect x="40" y="258" width="420" height="82" fill="var(--wood)"/><rect x="40" y="250" width="420" height="10" rx="2" fill="#D9D2C5"/>${[40,145,250,355].map(x=>`<rect x="${x+4}" y="266" width="97" height="70" rx="3" fill="var(--wood2)"/>`).join('')}<rect x="100" y="244" width="90" height="7" rx="2" fill="#2A2F45"/><circle cx="125" cy="247" r="6" fill="#4A5170"/><circle cx="165" cy="247" r="6" fill="#4A5170"/><rect x="262" y="246" width="66" height="6" rx="3" fill="#9FB2C6"/><path d="M314 246 v-24 h-14" stroke="#9FB2C6" stroke-width="4" fill="none"/><rect x="372" y="266" width="66" height="70" rx="3" fill="#C9CED6"/><rect x="40" y="170" width="420" height="80" fill="#EFE7D6"/><rect x="470" y="60" width="110" height="280" rx="4" fill="#E7ECF2"/><line x1="470" y1="170" x2="580" y2="170" stroke="#B8C2CE" stroke-width="2"/><rect x="566" y="110" width="5" height="40" rx="2" fill="#9FB2C6"/><rect x="566" y="200" width="5" height="40" rx="2" fill="#9FB2C6"/>`,
+ prikh:()=>BASE+doorF(20,90)+`<ellipse cx="65" cy="344" rx="48" ry="6" fill="#6C7BB5"/><rect x="140" y="300" width="120" height="10" rx="3" fill="var(--wood)"/><rect x="146" y="310" width="8" height="30" fill="var(--wood2)"/><rect x="246" y="310" width="8" height="30" fill="var(--wood2)"/><line x1="140" y1="150" x2="260" y2="150" stroke="var(--wood2)" stroke-width="4"/><rect x="152" y="152" width="34" height="80" rx="10" fill="var(--blue)"/><rect x="204" y="152" width="34" height="70" rx="10" fill="var(--pink)"/><rect x="300" y="80" width="240" height="260" rx="3" fill="var(--wood)"/><rect x="306" y="86" width="66" height="254" fill="var(--wood2)"/><rect x="380" y="100" width="80" height="220" rx="4" fill="var(--glass)"/><rect x="468" y="86" width="66" height="254" fill="var(--wood2)"/>`,
+ klad:()=>BASE+[118,178,238,298].map(y=>`<rect x="40" y="${y-8}" width="222" height="7" fill="var(--wood)"/>`).join('')+`${books(48,110,9)}${books(52,170,8)}${books(48,230,9)}<rect x="320" y="80" width="250" height="90" fill="var(--wood)"/><line x1="445" y1="84" x2="445" y2="166" stroke="var(--wood2)" stroke-width="2"/><rect x="320" y="182" width="250" height="68" fill="#EFE7D6"/><rect x="320" y="258" width="250" height="82" fill="var(--wood)"/><rect x="320" y="250" width="250" height="10" rx="2" fill="#D9D2C5"/>`,
+ ofis:()=>BASE+`<rect x="110" y="215" width="60" height="55" rx="6" fill="#F4F6F8"/><path d="M100 272 h80 v18 q0 30 -30 34 v16 h-20 v-16 q-30 -4 -30 -34z" fill="#F4F6F8"/><rect x="320" y="270" width="100" height="70" rx="4" fill="var(--wood)"/><rect x="324" y="258" width="92" height="14" rx="6" fill="#F4F6F8"/><rect x="330" y="110" width="80" height="100" rx="8" fill="var(--glass)"/>`+doorF(520,70),
+ gard:()=>BASE+`<rect x="60" y="88" width="480" height="8" fill="var(--wood)"/><line x1="60" y1="130" x2="540" y2="130" stroke="#8C96B5" stroke-width="4"/>${[80,120,160,200,240,300,340,380,420,460,500].map((x,i)=>`<path d="M${x+14} 130 l-4 6 h-14 v${60+(i%3)*24} h36 v-${60+(i%3)*24} h-14z" fill="${['#5DA6DE','#E58FB5','#6FBF8A','#E9A55B','#9B8FE5'][i%5]}"/>`).join('')}<rect x="60" y="270" width="480" height="70" fill="var(--wood)"/>${[60,180,300,420].map(x=>`<rect x="${x+4}" y="276" width="112" height="28" rx="3" fill="var(--wood2)"/><rect x="${x+4}" y="308" width="112" height="28" rx="3" fill="var(--wood2)"/>`).join('')}`
+};
+function roomSVG(rid){
+  const r=R[rid];
+  return `<svg viewBox="0 0 600 400" role="img" aria-label="${esc(r.title)} ночью">${DEFS}${FURN[rid]()}<rect class="dark" id="dark" width="600" height="400" fill="#0B1029"/>${r.devices.map(glow).join('')}${r.devices.map(fx).join('')}${r.station?station(...r.st):''}${r.devices.map(d=>tag(d,...d.tag)).join('')}</svg>`;
+}
+function roomLabel(r){const k=IDEAS.filter(i=>i.kind==='room'&&i.room===r.id).map(i=>i.name);return k.length?k[k.length-1]:''}
+function mapSVG(){
+  let clips='',floors='',dark='',glows='',walls='',labels='',dots='';
+  for(const r of ROOMS){const[x,y,w,h]=r.map;
+    clips+=`<clipPath id="cp-${r.id}"><rect x="${x}" y="${y}" width="${w}" height="${h}"/></clipPath>`;
+    floors+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="var(--wall)"/>`;
+    dark+=`<rect class="dark" data-dk="${r.id}" x="${x}" y="${y}" width="${w}" height="${h}" fill="#0B1029"/>`;
+    const lights=r.devices.filter(d=>d.k===L);const small=h<70;
+    let pts=[];
+    if(small){const x0=x+w*.62,x1=x+w-14;lights.forEach((d,i)=>pts.push([lights.length>1?x0+(x1-x0)*i/(lights.length-1):(x0+x1)/2,y+h/2]))}
+    else{const ax=x+16,ay=y+(h>100?62:36),aw=w-32,ah=h-(h>100?62:38);const cols=Math.max(1,Math.ceil(Math.sqrt(lights.length*aw/Math.max(ah,1))));const rows=Math.ceil(lights.length/cols);
+      lights.forEach((d,i)=>{const c=i%cols,rr=Math.floor(i/cols);pts.push([ax+aw*(c+.5)/cols,ay+ah*(rr+.5)/rows])})}
+    lights.forEach((d,i)=>{const[px,py]=pts[i];const rad=Math.min(w,h)*.6;
+      glows+=`<circle class="glow" data-gl="${d.gid}" cx="${px}" cy="${py}" r="${rad}" fill="url(#gl)" clip-path="url(#cp-${r.id})"/>`;
+      dots+=`<circle class="mdot" data-md="${d.gid}" cx="${px}" cy="${py}" r="5"/>`});
+    const kid=roomLabel(r);
+    if(small) labels+=`<text x="${x+10}" y="${y+h/2+6}" fill="var(--ink)" style="font:400 20px var(--f-display)">${esc(r.name)}${kid?` <tspan fill="var(--lamp)" style="font-size:16px">«${esc(kid)}»</tspan>`:''}</text>`;
+    else labels+=`<text x="${x+10}" y="${y+30}" fill="var(--ink)" style="font:400 ${w<150?19:25}px var(--f-display)">${esc(r.name)}</text>`+(kid?`<text x="${x+10}" y="${y+52}" fill="var(--lamp)" style="font:800 16px var(--f-body)">«${esc(kid)}»</text>`:'');
+    if(r.station) dots+=`<g transform="translate(${x+w-22},${y+h-22})"><rect x="-9" y="-9" width="18" height="18" rx="5" fill="#2A2F45"/><circle r="4.5" fill="var(--alice)"/></g>`;
+    walls+=`<g class="mroom" data-room="${r.id}" role="button" aria-label="${esc(r.title)}"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"/><rect class="wallr" x="${x}" y="${y}" width="${w}" height="${h}"/></g>`;
+  }
+  return `<svg viewBox="0 0 900 580" role="img" aria-label="План квартиры 82 ночью">${DEFS.replace('</defs>',clips+'</defs>')}${floors}${dark}${glows}${dots}${labels}${walls}
+  <rect x="553" y="470" width="10" height="50" fill="var(--panel)"/><text x="548" y="500" text-anchor="end" fill="var(--muted)" style="font:800 12px var(--f-body)">вход →</text>
+  <text x="24" y="470" fill="var(--ink)" style="font:400 30px var(--f-display)">Квартира 82</text><text x="24" y="496" fill="var(--muted)" style="font:700 15px var(--f-body)">Нажми на комнату, чтобы зайти</text>
+  <g transform="translate(34,528)"><rect x="-9" y="-9" width="18" height="18" rx="5" fill="#2A2F45"/><circle r="4.5" fill="var(--alice)"/></g><text x="52" y="533" fill="var(--muted)" style="font:700 14px var(--f-body)">тут живёт Алиса (колонка)</text></svg>`;
+}
+
+/* ================= render: header + hub ================= */
+function renderMe(){
+  const p=P(),n=total(player);
+  $('#me').innerHTML=`<span class="av" style="background:${p.color}">${p.name[0]}</span><b>${p.name}</b><span class="stars">${starSvg(16)}${n}</span>`;
+}
+function doorArt(kind){
+  if(kind==='kv82')return `<svg viewBox="0 0 300 120" aria-hidden="true"><circle cx="250" cy="28" r="12" fill="#FFF3C4"/><circle cx="256" cy="24" r="11" fill="#121A3C"/>${[[30,20],[90,40],[170,18],[210,60]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.8" fill="#FFF3C4"/>`).join('')}<rect x="70" y="40" width="160" height="80" fill="#E8D6B4"/><path d="M60 44 150 6 240 44" fill="none" stroke="#A8733F" stroke-width="8" stroke-linejoin="round"/>${[[86,56,'#FFC94D'],[128,56,'#33407A'],[170,56,'#FFC94D'],[86,88,'#33407A'],[170,88,'#FFC94D']].map(([x,y,c])=>`<rect x="${x}" y="${y}" width="30" height="22" rx="3" fill="${c}"/>`).join('')}<rect x="132" y="88" width="24" height="32" fill="#7E522A"/><text x="144" y="80" text-anchor="middle" fill="#3A2600" style="font:400 16px var(--f-display)">82</text></svg>`;
+  if(kind==='ai')return `<svg viewBox="0 0 300 120" aria-hidden="true">${[[40,30],[260,90],[230,20],[70,95]].map(([x,y])=>`<path d="M${x} ${y-8} l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2z" fill="#8EE3CE"/>`).join('')}<rect x="105" y="30" width="90" height="70" rx="20" fill="#8EE3CE"/><circle cx="132" cy="62" r="9" fill="#08302A"/><circle cx="168" cy="62" r="9" fill="#08302A"/><circle cx="135" cy="59" r="3" fill="#fff"/><circle cx="171" cy="59" r="3" fill="#fff"/><path d="M135 82 q15 10 30 0" stroke="#08302A" stroke-width="4" fill="none" stroke-linecap="round"/><line x1="150" y1="30" x2="150" y2="14" stroke="#8EE3CE" stroke-width="4"/><circle cx="150" cy="12" r="6" fill="#FFC94D"/></svg>`;
+  return `<svg viewBox="0 0 300 120" aria-hidden="true"><rect x="110" y="25" width="80" height="80" rx="10" fill="none" stroke="#33407A" stroke-width="4" stroke-dasharray="10 8"/><path d="M150 50 v30 M135 65 h30" stroke="#33407A" stroke-width="6" stroke-linecap="round"/></svg>`;
+}
+function renderHub(){
+  const qn=g=>QUESTS[g].length;
+  $('#app').innerHTML=`<div class="hub">
+   <div class="hero"><h2>Привет! Кто сегодня играет?</h2><p>Звёзды из всех миров складываются вместе.</p></div>
+   <div class="who" role="group" aria-label="Кто играет">${Object.entries(PLAYERS).map(([k,p])=>{const n=total(k),lv=level(n);const pc=lv.next?Math.round((n-lv.from)/(lv.next[0]-lv.from)*100):100;
+     return `<button class="pcard" type="button" data-p="${k}" aria-pressed="${k===player}"><span class="av" style="background:${p.color}">${p.name[0]}</span><b>${p.name}</b><span class="lvl">${lv.name}</span><span class="bar"><i style="width:${pc}%"></i></span><span class="meta"><span class="stars">${starSvg(14)}${n}</span><span>${lv.next?'до «'+lv.next[1]+'» ещё '+(lv.next[0]-n):'самый высокий уровень'}</span></span></button>`}).join('')}</div>
+   <p class="sect">Куда пойдём, ${esc(P().name)}?</p>
+   <div class="worlds">
+    <button class="door" type="button" data-world="kv82">${doorArt('kv82')}<h3>Квартира 82</h3><p>Наш дом ночью. Включай свет голосом, выполняй задания, придумывай имена лампам и комнатам.</p><span class="wst"><span class="stars">${starSvg(14)}${worldStars(player,'kv82')}</span><span>заданий ${Object.keys(stars[player]).filter(k=>k.startsWith('kv82:q')).length} из ${qn(P().group)}</span></span></button>
+    <button class="door" type="button" data-world="ai">${doorArt('ai')}<h3>Мир ИИ</h3><p>Учимся просить ИИ понятно и безопасно. Здесь будет наш ИИ-сайт, пока три задания для примера.</p><span class="wst"><span class="stars">${starSvg(14)}${worldStars(player,'ai')}</span><span>пример</span></span></button>
+    <div class="door soon">${doorArt('soon')}<h3>Новый мир</h3><p>Сюда добавим следующий сайт. Звёзды из него тоже пойдут в общий счёт.</p></div>
+   </div></div>`;
+}
+
+/* ================= render: kv82 ================= */
+function renderKv(){
+  $('#app').innerHTML=`<div class="stage">
+   <section class="scene" aria-label="Квартира">
+     <div class="shead"><div class="row"><button class="btn ghost small" type="button" id="toMap"${view==='map'?' hidden':''}>← Вся квартира</button><h3 id="sTitle"></h3></div><span class="muted" id="sHint"></span></div>
+     <div id="svgHost"></div>
+     <div class="alice"><div class="ctx" id="ctxLine"></div><div class="bubbles" id="bubbles" aria-live="polite"></div>
+      <form class="say" id="sayForm" autocomplete="off"><input id="sayInput" type="text" placeholder="Напиши: Алиса, включи…" aria-label="Что сказать Алисе"><button class="btn" type="submit">Сказать</button></form></div>
+   </section>
+   <section class="panel"><div class="tabs" role="tablist">
+     <button class="tab" role="tab" data-tab="room">Комната</button><button class="tab" role="tab" data-tab="quests">Задания</button><button class="tab" role="tab" data-tab="names">Придумай имя</button></div>
+     <div class="pbody" id="pbody"></div></section></div>`;
+  renderScene();renderPanel();
+}
+function renderScene(){
+  $('#svgHost').innerHTML=view==='map'?'<div class="mapwrap">'+mapSVG()+'</div>':roomSVG(view);
+  $('#sTitle').textContent=view==='map'?'Вся квартира':R[view].title;
+  const tm=$('#toMap');if(tm)tm.hidden=view==='map';
+  updateScene();
+}
+function updateScene(){
+  if(screen!=='kv82')return;
+  document.querySelectorAll('#svgHost [data-g]').forEach(el=>{el.classList.toggle('on',!!S[el.dataset.g]);if(el.classList.contains('tag'))el.classList.toggle('sel',el.dataset.g===sel)});
+  document.querySelectorAll('#svgHost [data-gl]').forEach(el=>el.classList.toggle('on',!!S[el.dataset.gl]));
+  document.querySelectorAll('#svgHost [data-md]').forEach(el=>el.classList.toggle('on',!!S[el.dataset.md]));
+  const bright=rid=>R[rid].devices.reduce((a,d)=>a+(S[d.gid]?d.w:0),0);
+  if(view==='map'){document.querySelectorAll('#svgHost [data-dk]').forEach(el=>el.style.opacity=Math.max(.1,.84-bright(el.dataset.dk)*1.1))}
+  else{const dk=$('#dark');if(dk)dk.style.opacity=Math.max(.12,.84-bright(view))}
+  const lit=LIGHTS.filter(g=>S[g]).length;
+  $('#sHint').textContent=view==='map'?('Горит ламп: '+lit):(()=>{const r=R[view];const n=r.devices.filter(d=>d.k===L&&S[d.gid]).length;return n?('Горит: '+n+' из '+r.devices.filter(d=>d.k===L).length):'Темно. Нажми на лампу'})();
+  const c=R[ctx()];
+  $('#ctxLine').innerHTML=c.station?`Ты в: <b>${esc(c.name)}</b>. Колонка рядом и слышит тебя.`:`Ты в: <b>${esc(c.name)}</b>. Колонки тут нет, поэтому называй комнату: «…в ${esc(inRoom(c.id))}».`;
+}
+function bubble(you,al,hint){
+  const b=$('#bubbles');if(!b)return;
+  b.innerHTML=(you?`<div class="bub you">${esc(you)}</div>`:'')+(al?`<div class="bub al">${esc(al)}</div>`:'')+(hint?`<div class="bub hint">${esc(hint)}</div>`:'');
+  const st=document.querySelector('#svgHost .station');if(st&&al){st.classList.remove('talk');void st.getBoundingClientRect();st.classList.add('talk')}
+}
+function renderPanel(){
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===tab));
+  const b=$('#pbody');
+  b.innerHTML=tab==='room'?panelRoom():tab==='quests'?panelQuest():panelNames();
+  if(tab==='names')validateName();
+  updateScene();
+}
+const MAGIC=[['Мы дома','свет в прихожей и по дороге в комнаты'],['Мы уходим','гаснет всё в квартире'],['Ночной свет','тихий свет в коридоре и ванной'],['Уроки','у девочек стол, полки и главный свет'],['Готовим','свет над плитой и мойкой'],['Кино','в гостиной гаснет свет, горит диван'],['Спокойной ночи','вся квартира ложится спать'],['Дети подъём','утром будит всех детей музыкой']];
+function panelRoom(){
+  const p=P();
+  const head=`<div class="row" style="justify-content:space-between"><p class="lead">Играет <b style="color:var(--ink)">${p.name}</b></p><span class="mode">${p.modeName}</span></div>`;
+  if(view==='map') return head+`<div class="card"><p class="big">Зайди в любую комнату</p><p class="lead">Нажми на комнату на плане. А ещё есть волшебные слова для всей квартиры:</p></div>
+    <div class="card magic"><span class="lbl">Волшебные слова</span>${MAGIC.map(([w,t])=>`<div><span class="phrase">«Алиса, ${lc(w)}»</span>${spk('Алиса, '+lc(w))}<span class="muted">${t}</span></div>`).join('')}</div>
+    <div class="row"><button class="btn ghost" type="button" id="sndBtn">${sound[player]?'Звук: включён':'Звук: выключен'}</button></div>`;
+  const r=R[view],d=sel&&DEV[sel]&&DEV[sel].room===view?DEV[sel]:null;
+  let card;
+  if(d){const v=S[d.gid]?(d.k===CUR?'закрой ':'выключи '):(d.k===CUR?'открой ':'включи ');const ph='Алиса, '+v+lc(d.kid);
+    card=`<div class="card"><span class="lbl">${esc(d.what)}</span><p class="big">${esc(d.kid)}</p><div class="row"><span class="phrase">«${esc(ph)}»</span>${spk(ph)}</div>
+      <span class="lbl">Ещё можно звать</span><div class="chips">${namesOf(d).filter(n=>n!==d.kid).map(n=>`<span class="chip${IDEAS.some(i=>i.kind==='dev'&&i.room===d.room&&i.dev===d.id&&i.name===n)?' mine':''}">${esc(n)}</span>`).join('')||'<span class="muted">других имён нет</span>'}</div>
+      <span class="muted">В приложении Яндекса: «${esc(d.name)}»</span></div>`}
+  else card=`<div class="card"><p class="big">Нажми на любую лампу</p><p class="lead">Она загорится, а здесь появится её имя и что сказать Алисе.</p></div>`;
+  const words=roomWords(r);
+  return head+card+`<div class="card magic"><span class="lbl">${esc(r.title)}</span>
+    <div><span class="phrase">«Алиса, ${esc(words[0])}»</span>${spk('Алиса, '+words[0])}<span class="muted">гасит свет${r.devices.some(x=>x.k===FAN)?' и вытяжку':''} в комнате${words.length>r.words.length?'. Ещё работает: '+words.slice(r.words.length).map(w=>'«'+w+'»').join(', '):''}</span></div>
+    ${r.station?`<div><span class="phrase">«Алиса, включи свет»</span>${spk('Алиса, включи свет')}<span class="muted">зажигает весь свет в комнате</span></div>`:`<span class="muted">Колонки здесь нет. Поэтому у ламп в именах есть комната: «свет в ${esc(inRoom(r.id))}».</span>`}
+  </div><div class="row"><button class="btn ghost" type="button" id="sndBtn">${sound[player]?'Звук: включён':'Звук: выключен'}</button></div>`;
+}
+function picSvg(ic){
+  const Lc='var(--lamp)',G='#3A4266';
+  const m={bra:`<path d="M10 28 Q26 2 42 28Z" fill="${Lc}"/><circle cx="26" cy="28" r="5" fill="#FFF6D6"/><rect x="23" y="30" width="6" height="12" fill="${G}"/>`,
+    pendant:`<line x1="26" y1="4" x2="26" y2="18" stroke="${G}" stroke-width="2"/><path d="M18 18h16l10 16H8z" fill="${Lc}"/><rect x="8" y="42" width="36" height="5" fill="var(--wood)"/>`,
+    spots:`<rect x="4" y="8" width="44" height="5" fill="${G}"/>${[12,26,40].map(x=>`<ellipse cx="${x}" cy="15" rx="5" ry="3" fill="${Lc}"/><path d="M${x-4} 17 L${x-9} 44 L${x+9} 44 L${x+4} 17Z" fill="${Lc}" opacity=".35"/>`).join('')}`,
+    shelf:`<rect x="8" y="18" width="36" height="5" fill="var(--wood)"/><rect x="8" y="36" width="36" height="5" fill="var(--wood)"/><line x1="10" y1="26" x2="42" y2="26" stroke="${Lc}" stroke-width="3"/><line x1="10" y1="44" x2="42" y2="44" stroke="${Lc}" stroke-width="3"/>`,
+    tv:`<rect x="6" y="10" width="40" height="26" rx="3" fill="${G}"/><rect x="10" y="14" width="32" height="18" fill="#5DA6DE"/><rect x="20" y="38" width="12" height="4" fill="${G}"/>`,
+    moon:`<circle cx="26" cy="26" r="16" fill="#FFF3C4"/><circle cx="33" cy="20" r="14" fill="var(--panel2)"/>`,
+    house:`<path d="M8 26 26 10l18 16v18H8z" fill="#E8D6B4"/><rect x="21" y="30" width="10" height="14" fill="#7E522A"/><rect x="12" y="28" width="7" height="7" fill="${Lc}"/><rect x="33" y="28" width="7" height="7" fill="${Lc}"/>`,
+    hello:`<rect x="10" y="8" width="32" height="24" rx="10" fill="var(--alice)"/><path d="M18 32 l-4 10 12-10z" fill="var(--alice)"/><circle cx="20" cy="20" r="2.5" fill="#08302A"/><circle cx="32" cy="20" r="2.5" fill="#08302A"/>`};
+  return `<svg width="44" height="44" viewBox="0 0 52 52" aria-hidden="true">${m[ic]||m.bra}</svg>`;
+}
+const QL=()=>QUESTS[P().group];
+const curQ=()=>QL()[qIdx[player]%QL().length];
+const qKey=i=>'kv82:q:'+P().group+':'+i;
+function panelQuest(){
+  const list=QL(),i=qIdx[player]%list.length,q=list[i],p=P();
+  const dots=list.map((_,k)=>`<span class="dot${stars[player][qKey(k)]?' done':''}${k===i?' cur':''}"></span>`).join('');
+  let ans;
+  if(p.mode==='type') ans=`<form class="nm-in" id="qForm" autocomplete="off"><input id="qInput" type="text" placeholder="Алиса, …" aria-label="Твой ответ"><button class="btn lamp" type="submit">Сказать</button></form><div class="row"><button class="btn ghost small" type="button" id="hintBtn">Подсказка</button><span class="muted" id="hintTxt"></span></div>`;
+  else ans=`<div class="opts">${q.opts.map((o,k)=>{const cls=qState&&qState.picked===k?(qState.ok?' right':' wrong'):'';
+    return `<div class="optrow"><button class="opt${cls}" type="button" data-opt="${k}">${p.mode==='pics'?`<span class="pic">${picSvg(o.ic)}</span>`:''}<span class="txt">«${esc(o.p)}»</span></button>${p.mode==='pics'?spk(o.p):''}</div>`}).join('')}</div>`;
+  const fb=qState?(qState.ok?`<div class="fb ok"><b>Ура! Получилось</b><span>${qState.first?'+1 звезда. ':''}${esc(qState.msg)}</span></div>`:`<div class="fb no"><b>Почти!</b><span>${esc(qState.msg)}</span></div>`):'';
+  return `<div class="prog"><span class="lbl">Задание ${i+1} из ${list.length}</span><div class="dots">${dots}</div></div>
+   <div class="optrow" style="align-items:flex-start"><p class="big" style="flex:1">${esc(q.text)}</p>${spk(q.text)}</div>
+   <p class="lead">${p.mode==='type'?'Напиши, что скажешь Алисе.':'Что скажешь Алисе?'}</p>${ans}${fb}
+   <div class="row"><button class="btn ghost" type="button" id="qAgain">Заново</button><button class="btn" type="button" id="qNext">Следующее</button></div>`;
+}
+function startQuest(){
+  const q=curQ();resetState(q.start);qState=null;
+  ctxOverride=q.ctx||(q.view==='map'?P().home:q.view);
+  if(view!==q.view){view=q.view;renderScene()}
+  bubble('','',(q.start.length?'Где-то уже горит свет. ':'Везде темно. ')+(R[ctx()].station?'':'Колонки рядом нет!'));
+}
+function answer(phrase,optIdx){
+  const q=curQ();resetState(q.start);
+  const rep=run(phrase,ctx());bubble(phrase,rep);speak(rep);
+  const res=checkQuest(q);let msg;
+  if(res.ok)msg='Алиса поняла тебя.';
+  else if(optIdx!=null&&q.opts[optIdx].why)msg=q.opts[optIdx].why;
+  else msg=[res.missing.length?'Не горит: '+res.missing.map(g=>DEV[g].kid).join(', ')+'.':'',res.extra.length?'Ещё горит: '+res.extra.map(g=>DEV[g].kid).join(', ')+'.':''].join(' ').trim()||'Попробуй ещё раз.';
+  const first=res.ok&&addStar(qKey(qIdx[player]%QL().length));
+  qState={picked:optIdx,ok:res.ok,msg,first};renderPanel();
+}
+function nameScopeRoom(){return view==='map'?P().home:view}
+function panelNames(){
+  const rid=nameScopeRoom(),r=R[rid];
+  if(!nameDev||!DEV[nameDev]||DEV[nameDev].room!==rid)nameDev=r.devices[0].gid;
+  if(!nameRoom)nameRoom=rid;
+  const seg=`<div class="seg" role="group" aria-label="Что называем"><button type="button" data-nm="dev" aria-pressed="${nameMode==='dev'}">Лампы</button><button type="button" data-nm="room" aria-pressed="${nameMode==='room'}">Комнаты</button></div>`;
+  let body;
+  if(nameMode==='dev'){const d=DEV[nameDev];
+    body=`<p class="lead">Придумай своё имя для лампы в комнате «${esc(r.name)}». Короткое и весёлое.${view==='map'?' Другая комната — зайди в неё на плане.':''}</p>
+    <div class="chips">${r.devices.map(x=>`<button class="chip pick" type="button" data-nd="${x.gid}" aria-pressed="${x.gid===nameDev}">${esc(x.kid)}</button>`).join('')}</div>
+    <div class="card"><span class="lbl">${esc(d.what)}</span><p class="big">${esc(d.kid)}</p><span class="lbl">Уже зовут</span><div class="chips">${d.names.map(n=>`<span class="chip">${esc(n)}</span>`).join('')}</div>
+    <span class="lbl">Твоё имя</span><form class="nm-in" id="nmForm" autocomplete="off"><input id="nmInput" type="text" maxlength="40" placeholder="Например: Ракета" aria-label="Новое имя"><button class="btn lamp" type="submit" id="nmAdd">Добавить</button></form><div id="nmCheck" class="check" hidden></div></div>`}
+  else{const rr=R[nameRoom];
+    body=`<p class="lead">Придумай комнате весёлое имя. Скажешь «Алиса, …» — и в комнате погаснет свет, как от её настоящего названия.</p>
+    <div class="chips">${ROOMS.map(x=>`<button class="chip pick" type="button" data-nr="${x.id}" aria-pressed="${x.id===nameRoom}">${esc(x.name)}</button>`).join('')}</div>
+    <div class="card"><p class="big">${esc(rr.title)}</p><span class="lbl">Сейчас Алиса понимает</span><div class="chips">${roomWords(rr).map(w=>`<span class="chip">${esc(w)}</span>`).join('')}</div>
+    <span class="lbl">Твоё имя комнате</span><form class="nm-in" id="nmForm" autocomplete="off"><input id="nmInput" type="text" maxlength="40" placeholder="Например: Пещера" aria-label="Новое имя комнаты"><button class="btn lamp" type="submit" id="nmAdd">Добавить</button></form><div id="nmCheck" class="check" hidden></div></div>`}
+  const list=IDEAS.map((i,k)=>({i,k}));
+  return seg+body+`<div class="card"><span class="lbl">Список для папы</span>${list.length?`<ul class="list">${list.map(({i,k})=>`<li><b>${esc(i.name)}</b><span>${i.kind==='dev'?'→ лампа «'+esc(DEV[i.room+'.'+i.dev].name)+'» ('+esc(R[i.room].name)+')':'→ комната «'+esc(R[i.room].name)+'»'} · ${esc(PLAYERS[i.who].name)}</span><button class="linkbtn" type="button" data-del="${k}">убрать</button></li>`).join('')}</ul>
+   <div class="row"><button class="btn ghost small" type="button" id="copyBtn">Скопировать список</button><span class="muted" id="copyMsg"></span></div><span class="muted">В игре новые имена уже работают. В настоящей Алисе заработают, когда папа впишет их в Яндекс.</span>`:'<p class="muted">Пока пусто. За каждое новое имя — звезда!</p>'}</div>`;
+}
+const CMD=/телевиз|ночник|камин|будильник|музык|громк|погод|сказк|таймер/;
+function allPhrases(){const s=new Set(SCEN_WORDS);ROOMS.forEach(r=>roomWords(r).forEach(w=>s.add(norm(w))));return s}
+function checkName(n){
+  const t=n.trim();if(!t)return null;
+  if(t.length>25)return['bad','Длиннее 25 букв — Алиса такое не примет.'];
+  const bad=t.toLowerCase().match(CMD);if(bad)return['bad','Слово «'+bad[0]+'…» у Алисы — своя команда. Она запутается.'];
+  if(/[a-z0-9]/i.test(t))return['warn','Лучше русскими буквами и без цифр.'];
+  const nt=norm(t);
+  if(nameMode==='dev'){const d=DEV[nameDev];
+    if(allPhrases().has(nt))return['bad','Так называется комната или волшебное слово. Алиса запутается.'];
+    for(const x of R[d.room].devices)for(const nm of namesOf(x))if(norm(nm)===nt)return x===d?['warn','Такое имя у этой лампы уже есть.']:['bad','Так уже зовут «'+x.kid+'». Алиса не поймёт, какую включить.'];
+    for(const x of ALL)if(x.room!==d.room)for(const nm of namesOf(x))if(norm(nm)===nt)return['warn','Так зовут лампу в комнате «'+R[x.room].name+'». Без колонки рядом Алиса переспросит.'];
+    if(t.split(/\s+/).length>3)return['warn','Длинновато. Попробуй покороче.'];
+    return['ok','Отличное имя! Скажешь так: «Алиса, включи '+lc(t)+'»'];
+  }
+  if(allPhrases().has(nt))return['bad','Так уже называется комната или волшебное слово.'];
+  for(const x of ALL)for(const nm of namesOf(x))if(norm(nm)===nt)return['bad','Так зовут лампу «'+x.kid+'». Алиса запутается.'];
+  if(t.split(/\s+/).length>3)return['warn','Длинновато. Попробуй покороче.'];
+  return['ok','Здорово! «Алиса, '+lc(t)+'» — и в комнате «'+R[nameRoom].name+'» погаснет свет.'];
+}
+function validateName(){
+  const i=$('#nmInput'),c=$('#nmCheck');if(!i||!c)return;
+  const res=checkName(i.value);
+  if(!res){c.hidden=true;$('#nmAdd').disabled=true;return}
+  c.hidden=false;c.className='check '+res[0];c.textContent=res[1];$('#nmAdd').disabled=res[0]==='bad';
+}
+
+/* ================= render: ai world ================= */
+function renderAI(){
+  const q=AIQ[aiIdx],p=P();
+  const dots=AIQ.map((_,k)=>`<span class="dot${stars[player]['ai:'+k]?' done':''}${k===aiIdx?' cur':''}"></span>`).join('');
+  $('#app').innerHTML=`<div class="aiw"><div class="wbar"><h2>Мир ИИ</h2><span class="mode">пример: тут будет наш ИИ-сайт</span></div>
+   <div class="panel"><div class="pbody">
+    <div class="prog"><span class="lbl">Задание ${aiIdx+1} из ${AIQ.length}</span><div class="dots">${dots}</div></div>
+    <div class="optrow" style="align-items:flex-start"><p class="big" style="flex:1">${esc(q.text)}</p>${spk(q.text)}</div>
+    <div class="opts">${q.opts.map((o,k)=>{const cls=aiState&&aiState.picked===k?(aiState.ok?' right':' wrong'):'';return `<div class="optrow"><button class="opt${cls}" type="button" data-aiopt="${k}"><span class="txt">${esc(o.p)}</span></button>${p.mode==='pics'?spk(o.p):''}</div>`}).join('')}</div>
+    ${aiState?(aiState.ok?`<div class="fb ok"><b>Верно!</b><span>${aiState.first?'+1 звезда в общий счёт.':'Звезда за это уже есть.'}</span></div>`:`<div class="fb no"><b>Почти!</b><span>${esc(aiState.msg)}</span></div>`):''}
+    <div class="row"><button class="btn" type="button" id="aiNext">Следующее</button></div>
+   </div></div></div>`;
+}
+
+/* ================= navigation ================= */
+function go(s){
+  screen=s;
+  if(s==='hub')renderHub();
+  if(s==='kv82'){view=P().home;ctxOverride=null;tab='room';sel=null;resetState(EVENING[P().home]);renderKv();bubble('','','Привет, '+P().name+'! Ты у себя в комнате. Нажми на лампу или напиши Алисе.')}
+  if(s==='ai'){aiIdx=0;aiState=null;renderAI()}
+  renderMe();window.scrollTo(0,0);
+}
+const EVENING={miron:['miron.up','miron.shelf','living.lyustra','living.divan','corr.podsv','kitchen.palka','bed.tv'],girls:['girls.desk','girls.yasya','living.lyustra','living.divan','corr.podsv','kitchen.palka','bed.tv']};
+
+/* ================= events ================= */
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.closest('#homeBtn')){location.href='../#/hi/'+player;return}
+  const pc=t.closest('.pcard');if(pc){player=pc.dataset.p;save();renderHub();renderMe();return}
+  const wd=t.closest('[data-world]');if(wd){go(wd.dataset.world);return}
+  const sp=t.closest('[data-say]');if(sp){speakNow(sp.dataset.say);return}
+  if(screen==='ai'){
+    const ao=t.closest('[data-aiopt]');if(ao){const k=+ao.dataset.aiopt,q=AIQ[aiIdx],ok=k===q.right;aiState={picked:k,ok,msg:q.opts[k].why||'',first:ok&&addStar('ai:'+aiIdx)};renderAI();if(ok)speak('Верно!');return}
+    if(t.id==='aiNext'){aiIdx=(aiIdx+1)%AIQ.length;aiState=null;renderAI();return}
+    return;
+  }
+  if(screen!=='kv82')return;
+  const mr=t.closest('.mroom');if(mr){view=mr.dataset.room;ctxOverride=null;sel=null;if(tab==='quests')tab='room';renderScene();renderPanel();bubble('','','Ты зашёл в комнату «'+R[view].name+'».');return}
+  if(t.closest('#toMap')){view='map';ctxOverride=null;sel=null;if(tab==='quests')tab='room';renderScene();renderPanel();return}
+  const fxEl=t.closest('#svgHost [data-g]');
+  if(fxEl){const d=DEV[fxEl.dataset.g];
+    const v=S[d.gid]?(d.k===CUR?'закрой ':'выключи '):(d.k===CUR?'открой ':'включи ');
+    const ph='Алиса, '+v+lc(d.kid);ctxOverride=null;const rep=run(ph,ctx());sel=d.gid;bubble(ph,rep);speak(ph);
+    if(tab==='quests'){tab='room';qState=null}
+    if(tab==='names'){nameMode='dev';nameDev=d.gid}
+    renderPanel();return}
+  const tb=t.closest('.tab');if(tb){tab=tb.dataset.tab;if(tab==='quests')startQuest();else if(ctxOverride){ctxOverride=null}renderPanel();return}
+  if(t.id==='sndBtn'){sound[player]=!sound[player];save();renderPanel();return}
+  const op=t.closest('[data-opt]');if(op){const k=+op.dataset.opt;answer(curQ().opts[k].p,k);return}
+  if(t.id==='qNext'){qIdx[player]=(qIdx[player]+1)%QL().length;startQuest();renderPanel();return}
+  if(t.id==='qAgain'){startQuest();renderPanel();return}
+  if(t.id==='hintBtn'){$('#hintTxt').textContent=curQ().hint;return}
+  const nm=t.closest('[data-nm]');if(nm){nameMode=nm.dataset.nm;renderPanel();return}
+  const nd=t.closest('[data-nd]');if(nd){nameDev=nd.dataset.nd;renderPanel();return}
+  const nr=t.closest('[data-nr]');if(nr){nameRoom=nr.dataset.nr;renderPanel();return}
+  const dl=t.closest('[data-del]');if(dl){IDEAS.splice(+dl.dataset.del,1);save();renderScene();renderPanel();return}
+  if(t.id==='copyBtn'){
+    const txt=IDEAS.map(i=>i.kind==='dev'?`${R[i.room].name} · лампа «${DEV[i.room+'.'+i.dev].name}» → добавить имя «${i.name}» (${PLAYERS[i.who].name})`:`Сценарий «${R[i.room].words[0]}» (гасит ${R[i.room].name}) → добавить фразу «${i.name}» (${PLAYERS[i.who].name})`).join('\n');
+    const m=$('#copyMsg');
+    try{navigator.clipboard.writeText(txt).then(()=>m.textContent='Скопировано',()=>m.textContent=txt)}catch(err){m.textContent=txt}
+    return}
+});
+document.addEventListener('input',e=>{if(e.target.id==='nmInput')validateName()});
+document.addEventListener('submit',e=>{
+  e.preventDefault();
+  if(e.target.id==='sayForm'){const v=$('#sayInput').value.trim();if(!v)return;const ph=/^алиса/i.test(v)?v:'Алиса, '+v;const rep=run(ph,ctx());bubble(ph,rep);speak(rep);$('#sayInput').value='';if(tab==='quests')qState=null;updateScene();if(tab==='room')renderPanel();return}
+  if(e.target.id==='qForm'){const v=$('#qInput').value.trim();if(!v)return;answer(/^алиса/i.test(v)?v:'Алиса, '+v,null);return}
+  if(e.target.id==='nmForm'){const v=$('#nmInput').value.trim();const res=checkName(v);if(!res||res[0]==='bad')return;
+    let item,key;
+    if(nameMode==='dev'){const d=DEV[nameDev];item={who:player,kind:'dev',room:d.room,dev:d.id,name:v};key='kv82:n:'+d.gid}
+    else{item={who:player,kind:'room',room:nameRoom,name:v};key='kv82:nr:'+nameRoom}
+    if(!IDEAS.some(i=>i.kind===item.kind&&i.room===item.room&&i.dev===item.dev&&norm(i.name)===norm(v)))IDEAS.push(item);
+    const first=addStar(key);save();
+    if(view==='map')renderScene();
+    renderPanel();
+    bubble('','',(first?'+1 звезда! ':'')+(nameMode==='dev'?'Попробуй: «Алиса, включи '+lc(v)+'»':'Попробуй: «Алиса, '+lc(v)+'»'));return}
+});
+
+/* ================= start ================= */
+renderMe();
+const h=(location.hash||'').slice(1);
+go('kv82');
+})();
+</script>
+</body>
+</html>

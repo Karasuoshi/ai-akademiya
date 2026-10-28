@@ -497,3 +497,20 @@ h1 { font-size: 40px; font-weight: 900; margin: 6px 0 4px; letter-spacing: -.01e
   .bar-row { grid-template-columns: 88px 1fr 36px; }
   h1 { font-size: 34px; }
 }
+
+/* ───────── Весёлый Дом: выбор мира ───────── */
+.world-card {
+  display: grid; grid-template-columns: 76px 1fr 22px; gap: 14px; align-items: center;
+  padding: 16px; border-radius: 24px; transition: transform .08s, box-shadow .08s; background: var(--card); color: var(--ink); text-decoration: none;
+  border: 2.5px solid var(--border); box-shadow: 5px 5px 0 var(--shadow);
+}
+.world-card:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--shadow); }
+.world-emoji { width: 76px; height: 76px; border-radius: 22px; display: grid; place-items: center; font-size: 44px; border: 2.5px solid var(--border); background: var(--soft); }
+.w-dom { background: #18203F; color: #EEF1FF; }
+.w-dom .kid-island, .w-dom .kid-stars { color: #A6AED3; }
+.w-dom .world-emoji { background: #FFC94D; }
+.t-miron .world-emoji { background: #FFC94A; }
+.t-yasya .world-emoji { background: #5EE0B5; }
+.t-esya .world-emoji { background: #8F7CFF; }
+.w-soon { border-style: dashed; box-shadow: none; background: transparent; }
+.w-soon .world-emoji { background: transparent; border-style: dashed; }
